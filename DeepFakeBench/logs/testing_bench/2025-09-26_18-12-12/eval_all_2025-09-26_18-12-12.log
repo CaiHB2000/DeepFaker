@@ -1,0 +1,16 @@
+===> Start evaluating datasets: Celeb-DF-v2
+[INFO] ROOT=/media/coolboy-3/chb/DeepFaker/DeepFakeBench
+[INFO] DET_DIR=/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/config/detector
+[INFO] W_DIR=/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/pretrained
+[INFO] Found 35 detector yamls
+[SKIP] altfreezing: no mapped weight
+
+==== Evaluating capsule_net ====
+Traceback (most recent call last):
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/test.py", line 25, in <module>
+    from dataset.abstract_dataset import DeepfakeAbstractBaseDataset
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/dataset/__init__.py", line 14, in <module>
+    from .fwa_blend import FWABlendDataset
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/dataset/fwa_blend.py", line 52, in <module>
+    face_predictor = dlib.shape_predictor(predictor_path)
+RuntimeError: Unable to open preprocessing/dlib_tools/shape_predictor_81_face_landmarks.dat

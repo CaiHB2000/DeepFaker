@@ -1,0 +1,58 @@
+preprocess:
+  dataset_name:
+    choices: ['FaceForensics++','Celeb-DF-v1','Celeb-DF-v2','DFDCP','DFDC','DeeperForensics-1.0','UADFV']
+    default: 'Celeb-DF-v2'
+  dataset_root_path:
+    type: str
+    # 原始视频根（你现在的路径）
+    default: '/media/coolboy-3/chb/DeepFaker/DeepFakeBench/datasets/rgb'
+  comp:
+    choices: ['raw','c23','c40']
+    default: 'c23'
+  mode:
+    choices: ['fixed_num_frames','fixed_stride']
+    default: 'fixed_num_frames'
+  stride:
+    type: int
+    default: 10
+  num_frames:
+    type: int
+    default: 32
+
+rearrange:
+  dataset_name:
+    choices: ['FaceForensics++','DeepFakeDetection','Celeb-DF-v1','Celeb-DF-v2','DFDCP','DFDC','DeeperForensics-1.0','UADFV','FaceShifter']
+    default: 'Celeb-DF-v2'
+  dataset_root_path:
+    type: str
+    # 指“预处理后的人脸帧所在根”。如果预处理是就地写在 rgb/Celeb-DF-v2 里，保持和上面一致即可。
+    default: '/media/coolboy-3/chb/DeepFaker/DeepFakeBench/datasets/rgb'
+  output_file_path:
+    type: str
+    # 建议用仓库自带这个目录，训练会去这里找 json
+    default: '../preprocessing/dataset_json'
+  comp:
+    choices: ['raw','c23','c40']
+    default: 'c23'
+  perturbation:
+    choices: ['end_to_end','end_to_end_level_1','end_to_end_level_2','end_to_end_level_3','end_to_end_level_4',
+              'end_to_end_level_5','end_to_end_mix_2_distortions','end_to_end_mix_3_distortions',
+              'end_to_end_mix_4_distortions','end_to_end_random_level','reenact_postprocess']
+    default: 'end_to_end'
+
+to_lmdb:
+  dataset_name:
+    choices: ['FaceForensics++','DeepFakeDetection','Celeb-DF-v1','Celeb-DF-v2','DFDCP','DFDC','DeeperForensics-1.0','UADFV','FaceShifter']
+    default: 'Celeb-DF-v2'
+  dataset_root_path:
+    type: str
+    # ！！！这里必须是“预处理后的人脸帧所在根”
+    # 你是就地写的，所以继续指 rgb
+    default: '/media/coolboy-3/chb/DeepFaker/DeepFakeBench/datasets/rgb'
+  output_lmdb_dir:
+    type: str
+    # LMDB 输出到这里
+    default: '/media/coolboy-3/chb/DeepFaker/DeepFakeBench/datasets/lmdb'
+  comp:
+    choices: ['raw','c23','c40']
+    default: 'c23'

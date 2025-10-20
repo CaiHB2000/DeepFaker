@@ -1,0 +1,12 @@
+['in_channels', 'out_channels', 'kernel_size', 'stride', 'padding', 'dilation', 'groups', 'bias', 'padding_mode', 'device', 'dtype']
+spatial_count=0 keep_stride_count=0
+Traceback (most recent call last):
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/test.py", line 225, in <module>
+    main()
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/test.py", line 195, in main
+    model = model_class(config).to(device)
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/detectors/f3net_detector.py", line 64, in __init__
+    self.backbone = self.build_backbone(config)
+  File "/media/coolboy-3/chb/DeepFaker/DeepFakeBench/training/detectors/f3net_detector.py", line 82, in build_backbone
+    conv1_data = state_dict['conv1.weight'].data
+KeyError: 'conv1.weight'
