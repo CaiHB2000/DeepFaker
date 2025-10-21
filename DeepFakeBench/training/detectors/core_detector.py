@@ -69,7 +69,8 @@ class CoreDetector(AbstractDetector):
         model_config = config['backbone_config']
         backbone = backbone_class(model_config)
         # if donot load the pretrained weights, fail to get good results
-        state_dict = torch.load(config['pretrained'])
+        map_location = None if torch.cuda.is_available() else torch.device('cpu')
+        state_dict = torch.load(config['pretrained'], map_location=map_location)
         for name, weights in state_dict.items():
             if 'pointwise' in name:
                 state_dict[name] = weights.unsqueeze(-1).unsqueeze(-1)
