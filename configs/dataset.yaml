@@ -1,0 +1,31 @@
+root_dir: datasets/dpmd_modalities
+language: zh
+platforms:
+  weibo:
+    enabled: true
+    max_posts_per_event: 200
+    window_hours: 72
+  wechat:
+    enabled: true
+    max_articles_per_event: 40
+  video:
+    enabled: true
+    providers: [douyin, bilibili]
+api:
+  bing_endpoint: https://api.bing.microsoft.com/v7.0/search
+  fact_check_rss:
+    - https://www.snopes.com/feed/
+    - https://www.politifact.com/rss/statements/
+  gpt_model: gpt-4o
+  gpt_endpoint: https://api.openai.com/v1/chat/completions
+rate_limits:
+  general_rpm: 60
+  gpt_rpm: 30
+  scrape_delay_seconds: 1.5
+storage:
+  events_csv: datasets/dpmd_modalities/events/events.csv
+  keywords_json: datasets/dpmd_modalities/events/keywords.json
+  raw_posts_dir: datasets/dpmd_modalities/raw_posts
+  views_dir: datasets/dpmd_modalities/views
+  labels_dir: datasets/dpmd_modalities/labels
+  logs_dir: datasets/dpmd_modalities/logs

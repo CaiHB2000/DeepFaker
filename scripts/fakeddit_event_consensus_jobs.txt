@@ -1,0 +1,2 @@
+dynamic_distill/configs/fakeddit_event_consensus.yaml 0 logs/fakeddit_event_consensus/fakeddit_event_consensus_seed00.log
+dynamic_distill/configs/fakeddit_event_consensus.yaml 1 logs/fakeddit_event_consensus/fakeddit_event_consensus_seed01.log

@@ -1,0 +1,82 @@
+model:
+  num_classes: 2
+  encoder_dim: 1024
+  classifier_hidden: 768
+  dropout: 0.1
+  text_model: microsoft/deberta-v3-large
+  vision_model: google/siglip-so400m-patch14-384
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.0  # teacher: no distill
+  evidence_anneal_steps: 1500
+
+training:
+  epochs: 12
+  batch_size: 12
+  log_every: 50
+  max_steps_per_epoch: null
+  allow_data_parallel: true
+
+scheduler:
+  type: cosine
+  warmup_steps: 800
+
+logging:
+  output_dir: paper_results/weibo_teacher_siglip_deb
+  run_name: weibo_teacher_siglip_deb
+  overwrite: true
+
+tokenizer:
+  name: microsoft/deberta-v3-large
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/siglip-so400m-patch14-384
+  image_size: 384
+  local_files_only: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 8
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0

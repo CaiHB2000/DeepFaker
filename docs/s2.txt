@@ -1,0 +1,1337 @@
+Assess and Guide: Multi-modal Fake News Detection via Decision
+Uncertainty
+Jie Wu
+
+Danni Xu
+
+Wenxuan Liu
+
+National Engineering Research
+Center for Multimedia Software,
+Institute of Artificial Intelligence,
+School of Computer Science,
+Wuhan University
+Hubei Key Laboratory of Multimedia
+and Network Communication
+Engineering
+Wuhan, China
+whu_wujie@whu.edu.cn
+
+School of Computing,
+National University of Singapore
+Singapore
+dannixu.gracie@foxmail.com
+
+School of Computer Science and
+Artificial Intelligence,
+Wuhan University of Technology
+Wuhan, China
+lwxfight@126.com
+
+Yew-Soon Ong
+
+Joey Tianyi Zhou
+Siyuan Hu
+Hongyuan Zhu
+
+Zheng Wang∗
+
+Centre for Frontier AI Research,
+A*STAR
+Nanyang Technological University
+Singapore
+asysong@ntu.edu.sg
+
+Agency for Science, Technology
+and Research (A*STAR)
+Singapore
+joey.tianyi.zhou@gmail.com
+husi0002@e.ntu.edu.sg
+hongyuanzhu.cn@gmail.com
+
+National Engineering Research
+Center for Multimedia Software,
+Institute of Artificial Intelligence,
+School of Computer Science,
+Wuhan University
+Hubei Key Laboratory of Multimedia
+and Network Communication
+Engineering
+Wuhan, China
+wangzwhu@whu.edu.cn
+
+uncertainty learning method based on the Dirichlet distribution
+is employed; 2) To fuse multi-modal information, uncertainty is
+used as a guiding factor to govern the contribution of each modality. Extensive experiments on two real-world datasets Weibo and
+Twitter validate the effectiveness of the proposed method.
+
+Abstract
+The prevalence of fake news, in both visual and textual forms, has
+become a critical and urgent issue. Existing multi-modal fake news
+detection methods aim to improve detection performance by leveraging information from different modalities and integrating it into
+a unified, comprehensive representation. However, challenges arise
+when different modalities hold conflicting beliefs. This suggests
+the existence of information asymmetry and imbalance between
+various modalities, which has not been adequately recognized in
+previous work. In this regard, focusing on the uncertainty of each
+modality facilitates a more nuanced understanding of its reliability
+and informativeness. In this work, we distinguish among uni-modal
+information sources through accurate estimation of their decision
+uncertainty, employing this uncertainty as a confidence measure
+and indicator of information imbalance to guide feature fusion.
+In particular, 1) To provide accurate uncertainty estimation, an
+
+CCS Concepts
+• Applied computing → Sociology; • Information systems →
+Social networks; • Computing methodologies → Information
+extraction.
+
+Keywords
+Multi-modal Learning, Fake News Detection, Uncertainty Learning
+ACM Reference Format:
+Jie Wu, Danni Xu, Wenxuan Liu, Yew-Soon Ong, Joey Tianyi Zhou, Siyuan
+Hu, Hongyuan Zhu, and Zheng Wang. 2024. Assess and Guide: Multi-modal
+Fake News Detection via Decision Uncertainty. In Proceedings of the 1st ACM
+Multimedia Workshop on Multi-modal Misinformation Governance in the Era
+of Foundation Models (MIS ’24), October 28-November 1 2024, Melbourne,
+VIC, Australia. ACM, New York, NY, USA, 8 pages. https://doi.org/10.1145/
+3689090.3689389
+
+∗ Corresponding author: Zheng Wang
+
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed
+for profit or commercial advantage and that copies bear this notice and the full citation
+on the first page. Copyrights for components of this work owned by others than the
+author(s) must be honored. Abstracting with credit is permitted. To copy otherwise, or
+republish, to post on servers or to redistribute to lists, requires prior specific permission
+and/or a fee. Request permissions from permissions@acm.org.
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+© 2024 Copyright held by the owner/author(s). Publication rights licensed to ACM.
+ACM ISBN 979-8-4007-1201-2/24/10
+https://doi.org/10.1145/3689090.3689389
+
+1
+
+Introduction
+
+Fake news refers to information that is deliberately fabricated to
+deceive people [11]. In recent years, the detection of fake news has
+become an increasingly critical topic, as misinformation spreads
+
+37
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+Little syrian girl sells guns on the
+street so she can feed herself.
+
+T1 Pred: fake
+
+Jie Wu et al.
+
+Trump was arrested by the FBI due to
+being charged with multiple crimes.
+
+T2 Pred: real
+
+T3 Pred: real
+
+Rea
+l
+
+New species of fish
+found at Arkansas.
+
+M1 Pred/GT: real/fake
+
+Image
+
+Text
+
+I3 Pred: fake
+
+erta
+
+inty
+
+I am confident! Count on me!
+Rea
+l
+
+Trump was arrested by the FBI due to
+being charged with multiple crimes.
+
+M3 Pred/GT:
+real/fake
+
+I2 Pred: fake
+
+Unc
+
+Ground Truth: Fake
+
+Image
+I1 Pred: real
+
+Fake
+
+Text
+M2 Pred/GT:
+real/fake
+
+Fake
+
+Unc
+
+erta
+
+inty
+
+Consider both to be enlightened.
+Rea
+l
+
+Fake
+
+Unc
+
+erta
+
+inty
+
+I am not sure! Please trust others.
+
+Figure 2: Different modalities of the same news exhibit varying levels of uncertainty. The fusion process choose to utilize
+more information from the modality with lower uncertainty
+score and make a joint decision.
+
+real
+fake
+
+Figure 1: T-SNE visualization of uni-modal and multi-modal
+mined features on Weibo test set. Text modality exhibits
+stronger discriminative power, while images appear somewhat ambiguous. This imbalance often leads to inconsistent
+predictions, ultimately resulting in incorrect classification.
+
+to make opposite predictions, leading to incorrect classification
+results after the fusion process.
+Inspired by the prevalent issue of imbalanced information in
+multi-modal fake news data, both text and image modalities require
+individualized processing based on their unique characteristics and
+call for authoritative guidance in the subsequent integration process. To address this challenge, we accurately estimate the decision
+uncertainty of each uni-modal information source, employing this
+uncertainty as a confidence measure and indicator of information
+imbalance to guide subsequent feature fusion. As shown in Fig 2,
+different modalities within the same news pair exhibit varying uncertainty levels. Specifically, the red box in the image highlights
+deceptive information (e.g., a president paired with a gun), while
+the text mistakenly labels the content as "real" due to the lack of
+such obvious misinformation. This discrepancy indicates a lower
+decision uncertainty in the image modality, making it more likely
+to produce confident predictive outcomes. If we were to perform a
+simple average fusion, the result might be biased by the text and
+lead to a decision contrary to the ground truth. However, by incorporating uncertainty assessment, the image modality is assigned a
+lower uncertainty score, meaning its features will be given more
+weight during the subsequent fusion stage.
+Building on this concept, we present a new framework called
+T-FND. T-FND begins by using the outputs of uni-modal detectors
+to model the parameters of a Dirichlet distribution, allowing for
+accurate uncertainty estimation for each modality. Unlike previous
+fusion approaches, T-FND employs these uncertainty estimates to
+guide the fusion of uni-modal features. In this process, modalities
+with higher uncertainty are down-weighted, while those with lower
+uncertainty are given greater emphasis. By accurately assessing
+uncertainty and employing uncertainty-based feature fusion, TFND effectively addresses modal imbalances, thereby enhancing
+the reliability and accuracy of multi-modal fake news detection.
+In summary, the specific contributions of this paper are:
+
+more rapidly and widely than the truth on social media. The widespread dissemination of fake news poses significant threats to individuals and society alike. However, accurately identifying fake
+news remains a significant challenge [32]. Given this pressing scenario, the automated detection of fake news has become imperative
+for the sustainable and healthy development of news platforms.
+In online news platforms such as Weibo and Twitter, daily published posts contain a variety of modalities, including images, text,
+videos, and more. From a uni-modal perspective, there are machine
+learning methods, such as using decision trees [20], as well as neural
+network approaches like analyzing writing style [23], utilizing attention mechanisms [2], and extracting features from the frequency
+domain [24]. However, uni-modal methods are somewhat disadvantaged in dealing with the increasing prevalence of multi-modal fake
+news, since they ignore correlations among different modalities,
+resulting in insufficient utilization of multi-modal information. To
+address this deficiency, researchers have turned their focus to the
+field of multi-modal fake news detection.
+To explore the semantic consistency between images and text,
+existing multi-modal methods typically reduce the distance between
+image-text features using similarity-aware techniques and map
+them into a shared latent space, aiming to obtain aligned and unified
+feature representations for detection [3, 8, 37]. Semantic consistency
+has proven helpful in fake news detection, and methods based on
+this perspective have yielded promising results [1, 15, 18, 27].
+However, while focusing on semantic consistency and treating
+uni-modal information equally, they often overlook the common
+information imbalance between text and images. In particular: 1)
+while the text modality typically exhibits better discriminative
+power, the image modality generally suffers from semantic ambiguity and greater noise, resulting in an indistinguishable and
+uncertain T-SNE distribution, as shown in Fig 1; 2) as illustrated
+by the three examples in Fig 1, it is common for images and text
+
+• We observe that information imbalance is prevalent in multimodal fake news data. To address this issue, we propose a
+new framework called T-FND, which measures and leverages
+
+38
+
+Assess and Guide: Multi-modal Fake News Detection via Decision Uncertainty
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+this imbalance through uncertainty estimation and uses this
+uncertainty to guide the fusion process.
+• We introduce a new multi-modal fusion approach in which
+decision uncertainty guides the fusion of multi-modal features. Compared to mainstream methods, our approach demonstrates improved performance in fake news detection.
+• Extensive experiments on two widely used real-world datasets,
+Twitter and Weibo, demonstrate the effectiveness of the
+proposed approach.
+
+method, LIIMR [31], identifies the modality that exhibits greater
+confidence in fake news detection.
+2.1.3 Uncertainty-based Learning. Uncertainty quantification (UQ)
+has become an increasingly important component in developing
+trustworthy machine learning systems. It has been successfully applied across various downstream tasks [9, 10, 17, 19, 26]. Accurate
+uncertainty estimation is essential for improving the reliability of
+predictive models, particularly in high-stakes applications such as
+medical diagnosis and, potentially, multi-modal fake news detection.
+Recently, evidential deep learning has been introduced as a promising approach, using a single neural network and a single forward
+pass to estimate prediction uncertainty at a given point. Uncertainty receives attention as it can serve as a measure of confidence
+in each modality and provide a qualitative indicator of information imbalance. In this work, to address the issues of imbalance in
+multi-modal data and achieve reliable classification, we leverage
+uncertainty at the decision level as guidance for fusing multi-modal
+features. When one modality lacks confidence in identifying misinformation, its respective view is down-weighted in the subsequent
+fusion process.
+
+2 Related work
+2.1 Fake News Detection
+Fake news detection is defined as the process of using AI to determine the authenticity of a given social media post and categorize
+it as either real or fake. Existing fake news detection methods can
+be broadly categorized into two approaches: uni-modal and multimodal. With the growth of social networks, there is a trend for
+news to shift from uni-modal to multi-modal formats. Multi-modal
+fake news poses greater challenges.
+2.1.1 Uni-modal Approach. Both language-based and vision-based
+fake news detection have received extensive attention. The study of
+text misinformation has undergone significant evolution, transitioning from traditional machine learning methods to more advanced
+deep learning models and their combinations [6]. In recent years,
+there has been a notable shift towards the adoption of transformers
+and pre-trained language models like BERT [4] for misinformation
+detection, resulting in improved performance outcomes. Apart from
+deepfake [21] studies, the sole visual modality has received relatively less attention. A recent example is the work of MVNN [25],
+which innovatively integrates spatial and frequency domain features of news for forensic analysis. However, for the multi-modal
+news, these approaches are unable to detect cross-modal correlations.
+
+3
+
+Proposed Approach
+
+The overview of the proposed T-FND is shown in Fig 3. We design
+a dual-stream network: one branch is dedicated to accurately estimating the uncertainty of each modality, while the other focuses
+on feature fusion based on this uncertainty to provide the final
+classification result. In the uncertainty estimation module, we use
+a Dirichlet distribution-based uncertainty learning method, where
+higher uncertainty reflects lower confidence in the corresponding
+modality. In the feature fusion and decision module, we incorporate
+each modality’s uncertainty as a linear guiding factor for fusion,
+with modalities of higher uncertainty being down-weighted and
+those of lower uncertainty receiving greater emphasis. By considering uncertainty, we can effectively weight each modality’s
+contribution during the fusion process, resulting in more accurate
+and reliable outcomes.
+For each piece of news 𝑥, we leverage a pretrained Vision Transformer [7] and BERT [5] to encode the image and text into unimodal embeddings 𝑥 𝑣 and 𝑥 𝑡 , respectively.
+
+2.1.2 Multi-modal Approach. Recently, there have been notable
+advancements in fake news detection methods that leverage crossmodal discriminative patterns to achieve superior performance.
+One such method is EANN [29], which incorporates an additional
+event discriminator to aid in feature extraction and learn crossmodal characteristics. Another approach, MVAE [15], introduces a
+multi-modal variational autoencoder that learns probabilistic latent
+variable models and reconstructs the original texts and low-level
+image features. Similarly, MCAN [31] utilizes multiple co-attention
+layers to effectively fuse textual and visual features for accurate
+fake news detection. CMC [30] uses a two-stage network that trains
+two uni-modal networks to learn cross-modal correlations by contrastive learning, and then fine-tunes the network for fake news
+detection.
+Additionally, there are methods that utilize both uni-modal and
+multi-modal information. For instance, CAFE [3] measures crossmodal ambiguity by evaluating the Kullback-Leibler (KL) [16] divergence between the distributions of uni-modal features. The learned
+ambiguity score is then used to linearly adjust the weights of unimodal and multi-modal features before final classification. However,
+CAFE assigns equal weights to each modality, whereas the confidence levels of different modalities should not be the same. Another
+
+3.1
+
+Uncertainty Estimating Module
+
+In this section, we will discuss how to perform accurate uncertainty
+estimation. After obtaining the image features 𝑥 𝑣 and text features
+𝑥 𝑡 , we pass them through two separate uni-modal classifiers to
+obtain the classification probabilities for each modality. The two
+uni-modal classifiers output their respective pieces of predictive
+evidence 𝑒 𝑡 = [𝑒𝑟𝑡 , 𝑒 𝑡𝑓 ] (where 𝑒𝑟𝑡 means the probability of classifying
+a sample as "real" in the text modality) and 𝑒 𝑣 = [𝑒𝑟𝑣 , 𝑒 𝑓𝑣 ].
+Subjective logic [14] associates the parameters of the Dirichlet
+distribution with the predicted probabilities. Accordingly, we use
+𝛼 𝑡 = [𝑒𝑟𝑡 + 1, 𝑒 𝑡𝑓 + 1] as the construction parameter for the Dirichlet
+distribution of the text modality. The belief mass and the uncertainty
+scores are computed as follows:
+𝑒𝑡
+𝑏𝑟𝑡 = 𝑟𝑡 ,
+𝑆
+
+39
+
+𝑒 𝑡𝑓
+𝑏 𝑡𝑓 = 𝑡 ,
+𝑆
+
+𝐾
+𝑢𝑡 = 𝑡 ,
+𝑆
+
+(1)
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+Jie Wu et al.
+
+Image
+Vit
+
+News
+Dataset
+
+Trump was arrested
+by the FBI due to
+being charged with
+multiple crimes.
+Text
+
+��
+
+Cross-Att
+
+Image Classifier
+
+��
+
+��
+�
+
+�
+
+Bert
+
+�
+
+1−�
+
+Rea Fake
+l
+
+R
+
+F
+
+U
+
+�
+
+�� + ��
+1 − ��
+
+Text Classifier
+
+�
+
+Modeling Dirichlet
+parameters
+
+�
+Rea Fake
+l
+
+y
+
+Final Classifier
+
+Modeling Dirichlet
+parameters
+
+R
+
+F
+
+U
+
+Figure 3: The architecture of the proposed T-FND. The model consists of an uncertainty estimation branch (upper and lower
+parts) and a multi-modal feature fusion branch (the middle part). In the uncertainty estimation branch, text embedding 𝑥 𝑡
+and image embedding 𝑥 𝑣 are individually passed through uni-modal classifiers to generate predictions. These predictions
+are then used to parameterize a Dirichlet distribution, deriving the uncertainty scores 𝑢 𝑡 and 𝑢 𝑣 . The feature fusion module
+utilizes uncertainty scores to guide the multi-modal fusion process, incorporating projected uni-modal features 𝑚𝑡 , 𝑚 𝑣 and
+fused representation 𝑚 𝑓 obtained via a cross-attention mechanism. Concatenated feature 𝑚˜ is fed into the final classifier.
+where 𝑢 𝑡 and 𝑏𝑟𝑡 indicate the overall uncertainty of text modality and
+the probability for the "real" classification, respectively. 𝑆 𝑡 = 𝛼 𝑡𝑓 +𝛼𝑟𝑡
+is the Dirichlet strength. 𝐾 represents the number of categories,
+which is two in our case. Similarly, for the image modality:
+
+increases, the focus shifts to more accurate uncertainty estimation.
+The total uncertainty estimation loss is as follows:
+Lue =
+
+𝑒 𝑓𝑣
+𝑒𝑣
+𝐾
+(2)
+𝑏𝑟𝑣 = 𝑟𝑣 , 𝑏 𝑣𝑓 = 𝑣 , 𝑢 𝑣 = 𝑣 ,
+𝑆
+𝑆
+𝑆
+Next, we discuss how to train neural networks to achieve accurate uncertainty calibration. Traditional cross-entropy loss is
+commonly used for classification tasks:
+Lce = −
+
+𝐾
+∑︁
+
+(5)
+
+where 𝑁 is the number of samples in a batch. The uncertainty
+assessment provided by this module will provide valuable guidance
+for our following feature fusion.
+
+(3)
+
+Multi-Modal Feature Fusion Module
+
+To achieve better feature fusion, we need to explore deep-level feature information. In this module, we project the features 𝑥 𝑡 and 𝑥 𝑣
+into a lower-dimensional space to uncover deep-level feature information for fusion. To facilitate subsequent fusion, both the textual
+and visual modalities are projected into the same dimensional space.
+The projection structure is a multi-layer perceptron (MLP), consisting of Linear–BatchNorm–ReLU–Linear, with dimensions from
+R768 to R384 and then to R64 . This allows for efficient integration
+and fusion of the two modalities. The uni-modal embeddings are
+denoted as 𝑚 𝑣 for the image modality and 𝑚𝑡 for the text modality
+after projection.
+We perform cross-attention [28] between 𝑚 𝑣 and 𝑚𝑡 to obtain
+fused embeddings that capture image-text correlations. The attention function is computed on the normalized query (Q), key (K),
+and value (V) features as follows:
+
+𝑖=1
+
+where 𝑝𝑖 is the predicted probability for class 𝑖.
+Inspired by [9], we made a minor modification to the crossentropy loss by multiplying it with the probability density of the
+Dirichlet distribution:
+!
+∫ ∑︁
+𝐾
+𝐾
+1 Ö 𝑡 𝛼 𝑡 −1 𝑡
+L𝑐𝑒 (𝛼 𝑡 ) =
+−𝑦𝑖 log(𝑏𝑖𝑡 )
+(𝑏 ) 𝑖 d𝑏 ,
+𝑡
+𝐵(𝛼 ) 𝑖=1 𝑖
+𝑖=1
+𝑖 can be either real or fake.
+The uncertainty calibration loss for the text modality is:
+
+
+L (𝛼 𝑡 ) = L𝑐𝑒 (𝛼 𝑡 ) + 𝜆KL 𝐷 (𝑏 𝑡 |𝛼˜ 𝑡 )||𝐷 (𝑏 𝑡 |1) ,
+
+i
+L (𝛼 𝑣𝑗 ) + L (𝛼 𝑡𝑗 ) ,
+
+𝑗=1
+
+3.2
+𝑦𝑖 log(𝑝𝑖 ),
+
+𝑁 h
+∑︁
+
+(4)
+
+where 𝛼˜𝑖 = 𝑦𝑖 + (1−𝑦𝑖 ) ⊙𝛼 is the adjusted parameter of the Dirichlet
+distribution that avoids penalizing the probabilities of the ground
+truth class to 0. 𝜆 factor gradually increases from 0 to 1 as the
+training progresses. When 𝜆 is small, it allows for more flexible
+exploration of the parameter space, accelerating convergence; as 𝜆
+
+Attention(𝑄, 𝐾, 𝑉 ) = Softmax
+
+40
+
+ 𝑇 
+𝐾 𝑄
+𝑉,
+√
+𝐷
+
+(6)
+
+Assess and Guide: Multi-modal Fake News Detection via Decision Uncertainty
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+where 𝐷 is 64. Here, we cross-attend 𝑚 𝑣 with the text embedding 𝑚𝑡 by treating the image embedding as the query (Q) and the
+text embedding as both the key (K) and value (V) to obtain image
+embeddings enriched with textual information. Similarly, we perform cross-attention to obtain a text embedding that incorporates
+image information. These fused embeddings are then concatenated
+to form the multi-modal supplementary information 𝑚 𝑓 .
+At this stage, we have the confidence scores 𝑢 𝑣 and 𝑢 𝑡 provided
+by the uncertainty estimation module, the uni-modal features 𝑚 𝑣
+and 𝑚𝑡 from the two modalities, and the feature 𝑚 𝑓 representing
+the cross-modal interaction.
+Traditional fusion methods, whether through simple concatenation or attention-based mechanisms, tend to treat different modalities equally, without accounting for the uncertainty inherent in
+each uni-modal representation. CAFE [3] quantifies cross-modal
+ambiguity by assessing the KL divergence between the distributions
+of uni-modal features. The resulting ambiguity score is then used to
+linearly adjust the weights of uni-modal and multi-modal features
+prior to final classification. However, the modality fusion used by
+CAFE imposes a constraint that the text and image modalities share
+the same weight. When the uncertainty of a modality is high, we
+should not rely heavily on information from that modality to make
+decisions. Conversely, when the confidences of both modalities are
+low, it is necessary to integrate both modalities to make a comprehensive judgment. Based on this, we propose a fusion method
+driven by uncertainty.
+In T-FND, the input to the final classifier is obtained by adaptively concatenating two sets of embeddings: one set consists of the
+uni-modal representations 𝑢 𝑣 and 𝑢 𝑡 , and the other set consists of
+the cross-modality correlations 𝑚 𝑓 from the cross-attention fusion
+module. This concatenation process is governed by the uncertainty
+scores 𝑢 𝑣 and 𝑢 𝑡 provided by the aforementioned uncertainty evaluation module, and it is described as follows:
+
+
+
+
+𝑚˜ = 1 − 𝑢 𝑣 × 𝑚 𝑣 ⊕ 1 − 𝑢 𝑡 × 𝑚𝑡 ⊕ ((𝑢 𝑣 + 𝑢 𝑡 ) × 𝑚 𝑓 ), (7)
+
+4
+
+4.1
+
+4.1.1 Weibo. This dataset was collected from Weibo social media
+from 2012 to 2016 and is written in Chinese. Each line of data
+contains text, and an image. The training set contains 7, 532 news,
+including 3, 749 fake news and 3, 783 non-fake news while the test
+set contains 1, 996 posts. So some methods such as EANN [29] aim
+to improve the quality of the dataset by filtering out challenging
+samples, including screenshots, images smaller than 64x64 pixels,
+and text with fewer than 5 words.
+4.1.2 Twitter. This dataset was introduced in for fake news detection on Twitter. Data consists of a training set and a test set.
+Each news data has text, and some news items are accompanied by
+images. The training set contains 6, 649 real news and 4, 599 fake
+news and the test set contains 989 posts.
+
+4.2
+
+• U1.CAR [2] combines recurrent neural networks (RNN)
+with an attention mechanism to capture relatively important
+textual information for detecting text-only fake news.
+• U2.VS [13] explores the role of image content in automatic
+news verification on microblogs, proposing visual and statistical features to detect fake news based on distinct image
+distribution patterns between real and fake news events
+• M1.RA [12] proposes an end-to-end att-RNN to effectively
+detect rumors by fusing multi-modal features, including text,
+image, and social context.
+• M2.EANN [29] addresses the challenge of detecting fake
+news on newly emerged events by deriving event-invariant
+features through a multi-modal feature extractor, fake news
+detector, and event discriminator.
+• M3.SAFE [36] which uses a pre-trained image-to-text model
+to transform the image into text, and then measures the
+similarity to detect fake news.
+• M4.MKEMN [35] fuses text, images, and retrieved information using CNN.
+• M5.MCNN [33] uses cosine similarity to compute text-image
+similarity to assist in fake news detection.
+• M6.MVAE [15] uses a variational autoencoder with a binary
+classifier to model representations between text and images.
+• M7.CAFE [3] takes into account the KL divergence of the
+distributions of image and text modalities to guide modality
+fusion.
+
+(8)
+
+(9)
+
+In order to simultaneously provide accurate uncertainty assessment
+and effective classification, we employ multi-task training strategy.
+The final loss function is given by:
+△
+
+L = Lue + L𝑐𝑙𝑠 .
+
+Baseline Method
+
+We compared our method with both uni-modal and multi-modal
+methods for fake news detection. Here are the basic details of
+baseline used in our experiments.
+
+The loss for classification is commonly calculated using crossentropy with the ground truth label 𝑦:
+˜ + (1 − 𝑦)
+˜ log(1 − 𝑦).
+L𝑐𝑙𝑠 = 𝑦 log(𝑦)
+
+Datasets
+
+We utilized two publicly available datasets collected from social
+media, as described below.
+
+where ⊕ represents the concatenation operation. The fusion method
+ensures: 1. when the uncertainty of a uni-modal representation is
+high, we rely less on information from that modality. 2. when the
+uncertainties of both modalities are high, the uni-modal information
+is scarcely used, while the cross-modal interaction information 𝑚 𝑓
+is given more prominence. Based on this, we aim to ensure that the
+features fed into the classifier can automatically adapt to individual
+samples and provide reliable classification.
+Then, we feed the final representation 𝑚˜ into a Multi-Layer
+˜
+Perception (MLP) to predict the label as 𝑦:
+˜
+𝑦˜ = softmax(𝑀𝐿𝑃 (𝑚))
+
+EXPRIMENTS
+
+This section presents the implementation issues and experimental results of applying our method to real world datasets and its
+comparison with advanced methods.
+
+(10)
+
+41
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+Jie Wu et al.
+
+Table 1: Performance comparison between ours and baseline methods. Bold face indicates the best overall performance.
+
+Twitter
+
+Weibo
+
+4.3
+
+Method
+
+Acc
+
+CAR
+VS
+RA
+EANN
+MVAE
+MKEMN
+SAFE
+MCNN
+CAFE
+Ours (T-FND)
+CAR
+VS
+RA
+EANN
+MVAE
+MKEMN
+SAFE
+MCNN
+CAFE
+Ours (T-FND)
+
+0.637
+0.617
+0.664
+0.648
+0.745
+0.715
+0.762
+0.784
+0.806
+0.824
+0.745
+0.726
+0.772
+0.795
+0.824
+0.814
+0.816
+0.823
+0.840
+0.888
+
+Pre
+0.574
+0.635
+0.749
+0.810
+0.801
+0.814
+0.831
+0.778
+0.807
+0.772
+0.705
+0.732
+0.854
+0.806
+0.854
+0.823
+0.818
+0.858
+0.855
+0.900
+
+Fake news
+Rec
+0.690
+0.644
+0.615
+0.498
+0.719
+0.756
+0.724
+0.781
+0.799
+0.918
+0.765
+0.712
+0.656
+0.795
+0.769
+0.799
+0.815
+0.801
+0.830
+0.872
+
+Pre
+0.724
+0.639
+0.589
+0.584
+0.689
+0.634
+0.695
+0.790
+0.805
+0.899
+0.756
+0.720
+0.720
+0.752
+0.802
+0.723
+0.816
+0.787
+0.825
+0.877
+
+Real news
+Rec
+0.602
+0.630
+0.728
+0.759
+0.777
+0.774
+0.811
+0.787
+0.813
+0.730
+0.725
+0.740
+0.889
+0.793
+0.875
+0.819
+0.818
+0.848
+0.851
+0.904
+
+F1
+0.617
+0.634
+0.651
+0.660
+0.730
+0.660
+0.748
+0.788
+0.809
+0.806
+0.740
+0.730
+0.795
+0.804
+0.837
+0.798
+0.817
+0.816
+0.837
+0.890
+
+methods across various metrics, highlighting the benefits of fusing
+and cross-referencing different modalities for fake news detection.
+Among various multi-modal methods, CAFE [3] performs the best
+as it addresses the information gap between text and images by
+modeling this gap with the distance between Gaussian distributions
+derived from text and image features. We observed increases of
+4.6% and 1.8% in accuracy on the Weibo and Twitter datasets,
+respectively, demonstrating the effectiveness of the proposed TFND method.
+It can be observed that the gains of our method vary across
+different datasets, with a much stronger performance advantage
+on the Weibo dataset compared to Twitter. We infer this might
+be because, in the Weibo dataset, images and text are well-paired,
+which facilitates our framework in conducting a comprehensive
+uncertainty assessment based on both modalities. However, for
+the Twitter dataset, the number of images is significantly smaller
+compared to the volume of text data, causing our method to degrade
+into a uni-modal approach and its performance gains cannot be
+demonstrated as effectively as in Weibo. It is worth noting that
+other methods also face the same challenge, and generally, performance on the Twitter dataset tends to be slightly lower than on
+the Weibo dataset.
+
+Implementation Details
+
+4.3.1 Experimental Setups. All our experiments were conducted on
+a single NVIDIA V100 GPU using the PyTorch [22] framework. The
+image encoder utilized ViT-B/16, while the text encoder employed
+BERT-base. The two uni-modal classifiers in the uncertainty estimation module were implemented as multi-layer perceptron (MLP)
+layers with a softplus function as the output activation function.
+The classifier in the feature fusion module used a fully connected
+layer with a softmax activation function. Training employed an
+early stopping strategy to prevent overfitting, and learning rate
+decay was managed using ReduceLROnPlateau. The experiments
+were conducted with a batch size of 32, and AdamW was used
+as the optimizer for training over 50 epochs. We used the same
+split ratio (7:1:2 for training, validation, and testing) for Weibo,
+following EANN [29]. For Twitter, an eighth of both real and fake
+training samples form the validation set. Similar to EANN [29] and
+BMR [34], text that is either absent or shorter than five words is
+replaced with "No text provided", while images smaller than 64×64
+pixels are padded with a zero matrix.
+4.3.2 Evaluation Metric. The evaluation metrics we used are consistent with those in previous multi-modal fake news detection
+works: accuracy, recall, precision, and F1-score.
+
+4.4
+
+F1
+0.682
+0.639
+0.676
+0.617
+0.758
+0.708
+0.774
+0.779
+0.803
+0.838
+0.750
+0.722
+0.742
+0.800
+0.809
+0.812
+0.817
+0.828
+0.842
+0.886
+
+5 Ablation Study
+5.1 Ablation of uncertainty estimating module
+
+Comparison with baselines
+
+Table 1 presents the comparison results on Weibo and Twitter
+with various baselines. T-FND achieves the highest accuracy and
+F1 score across both real-world datasets, with particularly strong
+performance on the Weibo dataset.
+Specifically, Table 1 allows us to draw the following conclusions:
+Multi-modal methods generally outperform text-only or image-only
+
+To validate the effectiveness of the uncertainty learning module,
+we sequentially removed uncertainty learning for each modality
+and eliminated its contribution to modality fusion as follows:
+• w/o 𝑢 𝑣 . We removed the uncertainty learning for the image
+modality and set the weight of the image modality to 1.0
+
+42
+
+Assess and Guide: Multi-modal Fake News Detection via Decision Uncertainty
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+9 0
+
+during the fusion of multi-modal information, instead of
+using its original weight (1.0 − 𝑢 𝑣 ).
+• w/o 𝑢 𝑡 . Similarly, we removed the uncertainty learning for
+the text modality and adjusted the weight during modality
+fusion.
+• one branch. We removed all uncertainty-related module,
+using directly concatenated uni-modal features as multimodal feature for detection.
+
+9 0
+8 5
+
+8 5
+
+8 0
+7 5
+
+8 0
+
+7 0
+7 5
+
+6 5
+6 0
+
+7 0
+
+0 .2 - 0 .8
+0 .4 - 0 .6
+0 .6 - 0 .4
+0 .8 - 0 .2
+
+6 5
+
+5 0
+4 5
+
+6 0
+
+4 0
+0
+
+From Table 2, we observed that removing the uncertainty estimation for a particular modality results in a decrease in accuracy
+by 2% to 2.2%, demonstrating that the uncertainty of each modality
+plays a role in aiding multi-modal fusion. Even after removing the
+uncertainty estimation for both modalities, we still achieve an accuracy of 85.9% thanks to the powerful capabilities of the pre-trained
+transformer.
+
+im a g e -o n ly
+te x t-o n ly
+c ro -a tt
+u n c e rta in ty
+
+5 5
+
+1 0
+
+2 0
+
+3 0
+
+4 0
+
+5 0
+
+6 0
+
+0
+
+1 0
+
+2 0
+
+3 0
+
+4 0
+
+5 0
+
+6 0
+
+Figure 4: Curves of testing accuracy (y-axis) versus training
+epochs (x-axis). We examined the effects of assigning fixed
+weights to different modalities (left), modality ablation, and
+comparisons with cross-attention fusion (right).
+Table 3: Ablation study of different multi-modal fusion methods on Weibo datasets.
+
+Table 2: Ablation study on the uni-modal uncertainty estimating module on the Weibo datasets.
+Method
+w/o 𝑢 𝑣
+w/o 𝑢 𝑡
+one branch
+Ours
+
+5.2
+
+Acc
+0.868
+0.864
+0.859
+0.888
+
+Pre
+0.869
+0.867
+0.862
+0.888
+
+Rec
+0.868
+0.865
+0.859
+0.888
+
+𝑤𝑡
+0.2
+0.4
+0.6
+0.8
+1.0
+0.0
+𝑎𝑡𝑡 𝑣2𝑡
+1 − 𝑢𝑡
+
+F1
+0.868
+0.864
+0.859
+0.888
+
+𝑤𝑣
+0.8
+0.6
+0.4
+0.2
+0.0
+1.0
+𝑎𝑡𝑡𝑡 2𝑣
+1 − 𝑢𝑣
+
+Acc
+0.865
+0.878
+0.869
+0.872
+0.856
+0.667
+0.863
+0.888
+
+Pre
+0.867
+0.878
+0.870
+0.874
+0.859
+0.666
+0.864
+0.888
+
+Rec
+0.865
+0.879
+0.869
+0.872
+0.857
+0.667
+0.863
+0.888
+
+F1
+0.864
+0.878
+0.869
+0.872
+0.856
+0.667
+0.863
+0.888
+
+Ablation study of multi-modal fusion
+
+To validate the rationale for using uncertainty as a basis for modality
+fusion, we evaluated the performance of the model under different
+fusion approaches. We tested three fusion methods: (1) assigning
+fixed weights to text and image modalities, (2) allocating weights
+based on cross-modal attention weights, and (3) our proposed approach of weight allocation based on uncertainty. Additionally, we
+included ablation experiments for specific modalities to provide a
+comprehensive comparison.
+Specifically, our experimental design is as follows:
+
+modalities, which hinders the attention mechanism from accurately
+capturing useful information for detection.
+Our fusion method based on uncertainty outperforms the aforementioned approaches. By performing adaptive uncertainty evaluation on each modality for every sample, it uses the uncertainty of
+each modality to guide the fusion process, achieving reliable and
+effective results.
+
+• On the left of Fig 4, we compared the fusion method using
+fixed weights.
+• On the right side of Fig 4, we performed modality ablation
+and compared the effects of fusion based on uncertainty and
+fusion based on attention.
+
+In this paper, we introduce a new framework called T-FND to address the issue of information imbalance in multi-modal fake news
+detection. Unlike previous methods that primarily focus on semantic consistency, T-FND leverages uncertainty scores derived
+from a Dirichlet distribution to assess the confidence level of each
+modality. These uncertainties are then used to guide the fusion
+process of uni-modal features, ensuring more reliable and accurate
+classification outcomes. Experimental results on two widely used
+datasets, Twitter and Weibo, highlight the importance of considering modality-specific uncertainty to improve multi-modal fake
+news detection.
+
+6
+
+From Table 3, we observed interesting results. The modality ablation experiments confirm a significant imbalance among different
+modalities. In the Weibo dataset, the textual modality provides
+clearer and more useful information compared to the visual modality. In the Twitter dataset, the significantly smaller number of
+images relative to text also leads to an imbalance in modality information.
+Fusing using a fixed ratio performs better than using uni-modal
+information alone, indicating that multi-modal fusion captures
+shared information across modalities and yields good results. However, a fixed ratio is not suitable for all samples, as it lacks adaptability to individual samples and reduces generalization ability. Fusion
+based on cross-attention weights did not perform as well as expected, likely due to a significant semantic gap between the two
+
+Conclusions
+
+Acknowledgments
+The numerical calculations in this paper have been done on the
+supercomputing system in the Supercomputing Center of Wuhan
+University.
+
+43
+
+MIS ’24, October 28-November 1 2024, Melbourne, VIC, Australia
+
+Jie Wu et al.
+
+References
+
+[21] Yisroel Mirsky and Wenke Lee. 2020. The Creation and Detection of Deepfakes:
+A Survey. CoRR abs/2004.11138 (2020). arXiv:2004.11138 https://arxiv.org/abs/
+2004.11138
+[22] Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory
+Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, et al. 2019.
+Pytorch: An imperative style, high-performance deep learning library. Advances
+in neural information processing systems 32 (2019).
+[23] Martin Potthast, Johannes Kiesel, Kevin Reinartz, Janek Bevendorff, and Benno
+Stein. 2017. A Stylometric Inquiry into Hyperpartisan and Fake News.
+arXiv:1702.05638 [cs.CL]
+[24] Peng Qi, Juan Cao, Tianyun Yang, Junbo Guo, and Jintao Li. 2019. Exploiting Multidomain Visual Information for Fake News Detection. arXiv:1908.04472 [cs.MM]
+[25] Peng Qi, Juan Cao, Tianyun Yang, Junbo Guo, and Jintao Li. 2019. Exploiting Multidomain Visual Information for Fake News Detection. In 2019 IEEE International
+Conference on Data Mining (ICDM). 518–527. https://doi.org/10.1109/ICDM.2019.
+00062
+[26] Yang Qin, Dezhong Peng, Xi Peng, Xu Wang, and Peng Hu. 2022. Deep Evidential
+Learning with Noisy Correspondence for Cross-modal Retrieval. In MM ’22: The
+30th ACM International Conference on Multimedia, Lisboa, Portugal, October 10 14, 2022, João Magalhães, Alberto Del Bimbo, Shin’ichi Satoh, Nicu Sebe, Xavier
+Alameda-Pineda, Qin Jin, Vincent Oria, and Laura Toni (Eds.). ACM, 4948–4956.
+https://doi.org/10.1145/3503161.3547922
+[27] Shivangi Singhal, Tanisha Pandey, Saksham Mrig, Rajiv Ratn Shah, and Ponnurangam Kumaraguru. 2022. Leveraging Intra and Inter Modality Relationship
+for Multimodal Fake News Detection. In Companion Proceedings of the Web
+Conference 2022 (Virtual Event, Lyon, France) (WWW ’22). Association for Computing Machinery, New York, NY, USA, 726–734. https://doi.org/10.1145/3487553.
+3524650
+[28] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+Aidan N Gomez, Ł ukasz Kaiser, and Illia Polosukhin. 2017. Attention is All
+you Need. In Advances in Neural Information Processing Systems, I. Guyon, U. Von
+Luxburg, S. Bengio, H. Wallach, R. Fergus, S. Vishwanathan, and R. Garnett (Eds.),
+Vol. 30. Curran Associates, Inc. https://proceedings.neurips.cc/paper_files/paper/
+2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf
+[29] Yaqing Wang, Fenglong Ma, Zhiwei Jin, Ye Yuan, Guangxu Xun, Kishlay Jha, Lu
+Su, and Jing Gao. 2018. EANN: Event Adversarial Neural Networks for MultiModal Fake News Detection. In Proceedings of the 24th ACM SIGKDD International
+Conference on Knowledge Discovery & Data Mining (London, United Kingdom)
+(KDD ’18). Association for Computing Machinery, New York, NY, USA, 849–857.
+[30] Zimian Wei, Hengyue Pan, Linbo Qiao, Xin Niu, Peijie Dong, and Dongsheng Li.
+2022. Cross-Modal Knowledge Distillation in Multi-Modal Fake News Detection.
+In ICASSP 2022 - 2022 IEEE International Conference on Acoustics, Speech and
+Signal Processing (ICASSP). 4733–4737. https://doi.org/10.1109/ICASSP43922.
+2022.9747280
+[31] Yang Wu, Pengwei Zhan, Yunjian Zhang, Liming Wang, and Zhen Xu. 2021.
+Multimodal Fusion with Co-Attention Networks for Fake News Detection. https:
+//doi.org/10.18653/v1/2021.findings-acl.226
+[32] Danni Xu, Shaojing Fan, and Mohan S. Kankanhalli. 2023. Combating Misinformation in the Era of Generative AI Models. In Proceedings of the 31st ACM
+International Conference on Multimedia, MM 2023, Ottawa, ON, Canada, 29 October
+2023- 3 November 2023, Abdulmotaleb El-Saddik, Tao Mei, Rita Cucchiara, Marco
+Bertini, Diana Patricia Tobon Vallejo, Pradeep K. Atrey, and M. Shamim Hossain
+(Eds.). ACM, 9291–9298. https://doi.org/10.1145/3581783.3612704
+[33] Junxiao Xue, Yabo Wang, Yichen Tian, Yafei Li, Lei Shi, and Lin Wei. 2021. Detecting fake news by exploring the consistency of multimodal data. Information
+Processing & Management 58, 5 (2021), 102610. https://doi.org/10.1016/j.ipm.
+2021.102610
+[34] Qichao Ying, Xiaoxiao Hu, Yangming Zhou, Zhenxing Qian, Dan Zeng, and
+Shiming Ge. 2023. Bootstrapping multi-view representations for fake news
+detection. In Proceedings of the AAAI conference on Artificial Intelligence, Vol. 37.
+5384–5392.
+[35] Huaiwen Zhang, Quan Fang, Shengsheng Qian, and Changsheng Xu. 2019. MultiModal Knowledge-Aware Event Memory Network for Social Media Rumor Detection. In Proceedings of the 27th ACM International Conference on Multimedia
+(Nice, France) (MM ’19). Association for Computing Machinery, New York, NY,
+USA, 1942–1951. https://doi.org/10.1145/3343031.3350850
+[36] Xinyi Zhou, Jindi Wu, and Reza Zafarani. 2020. : : Similarity-Aware MultiModal Fake News Detection. In Advances in Knowledge Discovery and Data
+Mining: 24th Pacific-Asia Conference, PAKDD 2020, Singapore, May 11–14, 2020,
+Proceedings, Part II (Singapore, Singapore). Springer-Verlag, Berlin, Heidelberg,
+354–367. https://doi.org/10.1007/978-3-030-47436-2_27
+[37] Xinyi Zhou, Jindi Wu, and Reza Zafarani. 2020. SAFE: Similarity-Aware MultiModal Fake News Detection. arXiv:2003.04981 [cs.CL]
+
+[1] Liesbeth Allein, Marie-Francine Moens, and Domenico Perrotta. 2021. Like
+Article, Like Audience: Enforcing Multimodal Correlations for Disinformation
+Detection. arXiv:2108.13892 [cs.CL]
+[2] Tong Chen, Lin Wu, Xue Li, Jun Zhang, Hongzhi Yin, and Yang Wang. 2017. Call
+Attention to Rumors: Deep Attention Based Recurrent Neural Networks for Early
+Rumor Detection. arXiv:1704.05973 [cs.CL]
+[3] Yixuan Chen, Dongsheng Li, Peng Zhang, Jie Sui, Qin Lv, Lu Tun, and Li Shang.
+2022. Cross-modal Ambiguity Learning for Multimodal Fake News Detection.
+Proceedings of the ACM Web Conference 2022 (2022). https://api.semanticscholar.
+org/CorpusID:248367577
+[4] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2018. BERT:
+Pre-training of Deep Bidirectional Transformers for Language Understanding.
+CoRR abs/1810.04805 (2018). arXiv:1810.04805 http://arxiv.org/abs/1810.04805
+[5] Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019. BERT:
+Pre-training of Deep Bidirectional Transformers for Language Understanding.
+arXiv:1810.04805 [cs.CL]
+[6] Yiqi Dong, Dongxiao He, Xiaobao Wang, Yawen Li, Xiaowen Su, and Di Jin. 2023.
+A Generalized Deep Markov Random Fields Framework for Fake News Detection.
+In Proceedings of the Thirty-Second International Joint Conference on Artificial
+Intelligence, IJCAI 2023, 19th-25th August 2023, Macao, SAR, China. ijcai.org, 4758–
+4765. https://doi.org/10.24963/ijcai.2023/529
+[7] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer,
+Georg Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby. 2021. An
+Image is Worth 16x16 Words: Transformers for Image Recognition at Scale.
+arXiv:2010.11929 [cs.CV]
+[8] Faeze Ghorbanpour, Maryam Ramezani, Mohammad Amin Fazli, and Hamid R.
+Rabiee. 2023. FNR: A Similarity and transformer-based approach to detect multimodal fake news in Social Media. Social Network Analysis and Mining 13, 1 (2023),
+1–15. https://doi.org/10.1007/s13278-023-01065-0
+[9] Zongbo Han, Changqing Zhang, Huazhu Fu, and Joey Tianyi Zhou. 2021. Trusted
+Multi-View Classification. arXiv:2102.02051 [cs.LG]
+[10] Zongbo Han, Changqing Zhang, Huazhu Fu, and Joey Tianyi Zhou. 2023. Trusted
+Multi-View Classification With Dynamic Evidential Fusion. IEEE Trans. Pattern
+Anal. Mach. Intell. 45, 2 (2023), 2551–2566. https://doi.org/10.1109/TPAMI.2022.
+3171983
+[11] Linmei Hu, Siqi Wei, Ziwang Zhao, and Bin Wu. 2022. Deep learning for fake
+news detection: A comprehensive survey. AI Open 3 (2022), 133–155. https:
+//doi.org/10.1016/j.aiopen.2022.09.001
+[12] Zhiwei Jin, Juan Cao, Han Guo, Yongdong Zhang, and Jiebo Luo. 2017. Multimodal
+Fusion with Recurrent Neural Networks for Rumor Detection on Microblogs. In
+Proceedings of the 25th ACM International Conference on Multimedia (Mountain
+View, California, USA) (MM ’17). Association for Computing Machinery, New
+York, NY, USA, 795–816. https://doi.org/10.1145/3123266.3123454
+[13] Zhiwei Jin, Juan Cao, Yongdong Zhang, Jianshe Zhou, and Qi Tian. 2017. Novel
+Visual and Statistical Image Features for Microblogs News Verification. IEEE
+Transactions on Multimedia 19, 3 (2017), 598–608. https://doi.org/10.1109/TMM.
+2016.2617078
+[14] Audun Jøsang and Robin Hankin. 2012. Interpretation and fusion of hyper
+opinions in subjective logic. In 2012 15th International Conference on Information
+Fusion. 1225–1232.
+[15] Dhruv Khattar, Jaipal Singh Goud, Manish Gupta, and Vasudeva Varma. 2019.
+MVAE: Multimodal Variational Autoencoder for Fake News Detection. In The
+World Wide Web Conference (San Francisco, CA, USA) (WWW ’19). Association
+for Computing Machinery, New York, NY, USA, 2915–2921. https://doi.org/10.
+1145/3308558.3313552
+[16] Solomon Kullback and Richard A. Leibler. 1951. On information and sufficiency.
+The Annals of Mathematical Statistics 22, 1 (1951), 79–86. https://doi.org/10.1214/
+aoms/1177729694
+[17] Bolian Li, Zongbo Han, Haining Li, Huazhu Fu, and Changqing Zhang. 2022.
+Trustworthy Long-Tailed Classification. In IEEE/CVF Conference on Computer
+Vision and Pattern Recognition, CVPR 2022, New Orleans, LA, USA, June 18-24,
+2022. IEEE, 6960–6969. https://doi.org/10.1109/CVPR52688.2022.00684
+[18] Jun Li, Yi Bin, Jie Zou, Jie Zou, Guoqing Wang, and Yang Yang. 2023. Cross-modal
+Consistency Learning with Fine-grained Fusion Network for Multimodal Fake
+News Detection. arXiv:2311.01807 [cs.SI]
+[19] Wenxuan Liu, Xian Zhong, Zhuo Zhou, Kui Jiang, Zheng Wang, and Chia-Wen
+Lin. 2023. Dual-Recommendation Disentanglement Network for View Fuzz in
+Action Recognition. IEEE Trans. Image Process. 32 (2023), 2719–2733. https:
+//doi.org/10.1109/TIP.2023.3273459
+[20] Xiaomo Liu, Armineh Nourbakhsh, Quanzhi Li, Rui Fang, and Sameena Shah.
+2015. Real-Time Rumor Debunking on Twitter. In Proceedings of the 24th ACM
+International on Conference on Information and Knowledge Management (Melbourne, Australia) (CIKM ’15). Association for Computing Machinery, New York,
+NY, USA, 1867–1870. https://doi.org/10.1145/2806416.2806651
+
+44
+
+

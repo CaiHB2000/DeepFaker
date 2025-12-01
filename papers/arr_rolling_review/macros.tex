@@ -1,0 +1,20 @@
+% 通用宏与占位（实验完成后由脚本自动填充 metrics_macros.tex）
+\newcommand{\modelname}{DMPD}
+\newcommand{\taskname}{multimodal misinformation detection}
+
+% 数据集与度量名
+\newcommand{\datasetA}{Weibo}
+\newcommand{\datasetB}{WeFEND}
+\newcommand{\metricAcc}{Accuracy}
+\newcommand{\metricMF}{Macro-F1}
+\newcommand{\metricPF}{Pos-F1}
+\newcommand{\metricECE}{ECE}
+
+% 默认 TBD 宏（将被 metrics_macros.tex 覆盖）
+% Use providecommand so that auto-generated metrics_macros.tex can \renewcommand safely
+\providecommand{\bestMF}{TBD}
+\providecommand{\bestPF}{TBD}
+\providecommand{\bestECE}{TBD}
+
+% 可选：引入由脚本生成的实验指标宏
+\IfFileExists{metrics_macros.tex}{\input{metrics_macros}}{}

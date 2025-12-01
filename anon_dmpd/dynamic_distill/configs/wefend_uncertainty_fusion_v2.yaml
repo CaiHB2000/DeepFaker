@@ -1,0 +1,85 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.0
+  evidence_anneal_steps: 600
+  class_weights:
+    - 0.635
+    - 2.3597
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 0.0
+  lambda_feat: 0.0
+  warmup_steps: 0
+  start_fraction: 0.0
+  adaptive_temperature:
+    enabled: false
+  confidence_gate:
+    enabled: false
+  uncertainty_ema:
+    enabled: false
+
+training:
+  epochs: 14
+  batch_size: 32
+  log_every: 50
+  allow_data_parallel: true
+  early_stopping_patience: 4
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+  word_dropout: 0.05
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.3
+    color_jitter: 0.15
+    random_rescale: 0.08
+
+scheduler:
+  type: cosine
+  warmup_steps: 600
+
+teacher:
+  use_ema: false
+  ema_decay: 0.999
+
+logging:
+  output_dir: paper_results/wefend_uncertainty_fusion_v2
+  run_name: wefend_uncertainty_fusion_v2
+  overwrite: true
+
+data:
+  type: wefend
+  root: datasets/wechat
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed_split/wefend_train.csv
+    image_dir: images
+  val:
+    csv_file: processed_split/wefend_val.csv
+    image_dir: images
+  test:
+    csv_file: processed_split/wefend_test.csv
+    image_dir: images

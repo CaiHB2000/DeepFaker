@@ -1,0 +1,56 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  hidden_dim: 512
+  dropout: 0.1
+  text_model: bert-base-uncased
+  vision_model: google/vit-base-patch16-224-in21k
+  grl_lambda: 1.0
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  lambda_domain: 0.2
+
+training:
+  epochs: 4
+  batch_size: 24
+  log_every: 100
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+logging:
+  output_dir: paper_results/fakeddit_eann
+  run_name: fakeddit_eann
+  overwrite: true
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 128
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed/fakeddit_test.csv
+    image_dir: images

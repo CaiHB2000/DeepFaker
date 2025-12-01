@@ -1,0 +1,86 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-uncased
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.5e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.6
+  beta: 0.4
+  gamma: 1.2
+  evidence_anneal_steps: 1500
+
+distillation:
+  temperature: 3.0
+  delta: 0.1
+  lambda_kl: 1.2
+  lambda_feat: 0.2
+  warmup_steps: 400
+  start_fraction: 0.35
+  adaptive_temperature:
+    enabled: true
+    base: 3.0
+    coeff: 2.5
+  confidence_gate:
+    enabled: true
+    margin: 0.25
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.92
+  lambda_fusion_to_text: 0.15
+  lambda_fusion_to_vision: 0.15
+  fusion_confidence: 0.15
+
+training:
+  epochs: 12
+  batch_size: 24
+  log_every: 50
+  max_steps_per_epoch: 400
+  allow_data_parallel: true
+  early_stopping_patience: 4
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 128
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+scheduler:
+  type: cosine
+  warmup_steps: 800
+
+teacher:
+  use_ema: true
+  ema_decay: 0.998
+  teacher_config: dynamic_distill/configs/fakeddit_uncertainty_fusion.yaml
+  teacher_checkpoint: paper_results/fakeddit/fakeddit_uncertainty_fusion_seed02/model_best.pt
+
+logging:
+  output_dir: paper_results/fakeddit_dynamic_distill_teacher
+  run_name: fakeddit_dynamic_distill_teacher
+  overwrite: true
+
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed/fakeddit_test.csv
+    image_dir: images

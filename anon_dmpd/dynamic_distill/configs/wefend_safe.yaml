@@ -1,0 +1,52 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  hidden_dim: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+training:
+  epochs: 8
+  batch_size: 32
+  log_every: 100
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+logging:
+  output_dir: paper_results/wefend_safe
+  run_name: wefend_safe
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+data:
+  type: wefend
+  root: datasets/wechat
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed_split/wefend_train.csv
+    image_dir: images
+  val:
+    csv_file: processed_split/wefend_val.csv
+    image_dir: images
+  test:
+    csv_file: processed_split/wefend_test.csv
+    image_dir: images

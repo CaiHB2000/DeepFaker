@@ -1,0 +1,129 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+
+\bibitem[{Blum and Mitchell(1998)}]{BlumMitchell1998}
+Avrim Blum and Tom Mitchell. 1998.
+\newblock Combining labeled and unlabeled data with co-training.
+\newblock In \emph{COLT}, pages 92--100.
+
+\bibitem[{Devlin et~al.(2019)Devlin, Chang, Lee, and Toutanova}]{Devlin2019BERT}
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova. 2019.
+\newblock Bert: Pre-training of deep bidirectional transformers for language understanding.
+\newblock In \emph{NAACL}, pages 4171--4186.
+
+\bibitem[{Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn, Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and Houlsby}]{Dosovitskiy2020ViT}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby. 2021.
+\newblock An image is worth 16x16 words: Transformers for image recognition at scale.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}.
+
+\bibitem[{Furlanello et~al.(2018)Furlanello, Lipton, Tschannen, Itti, and Anandkumar}]{Furlanello2018BAN}
+Tommaso Furlanello, Zachary~C. Lipton, Michael Tschannen, Laurent Itti, and Anima Anandkumar. 2018.
+\newblock Born again neural networks.
+\newblock In \emph{ICML}, pages 1607--1616.
+
+\bibitem[{Gou et~al.(2021)Gou, Yu, Maybank, and Tao}]{Gou2021KDsurvey}
+Jianping Gou, Baosheng Yu, Stephen~J Maybank, and Dacheng Tao. 2021.
+\newblock Knowledge distillation: A survey.
+\newblock \emph{International Journal of Computer Vision}, 129:1789--1819.
+
+\bibitem[{Guo et~al.(2017)Guo, Pleiss, Sun, and Weinberger}]{Guo2017Calibration}
+Chuan Guo, Geoff Pleiss, Yu~Sun, and Kilian~Q. Weinberger. 2017.
+\newblock On calibration of modern neural networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine Learning}, pages 1321--1330. PMLR.
+
+\bibitem[{Han et~al.(2018)Han, Yao, Yu, Niu, Xu, Hu, Tsang, and Sugiyama}]{Han2018Coteaching}
+Bo~Han, Quanming Yao, Xingrui Yu, Gang Niu, Miao Xu, Weihua Hu, Ivor Tsang, and Masashi Sugiyama. 2018.
+\newblock Co-teaching: Robust training of deep neural networks with extremely noisy labels.
+\newblock In \emph{Advances in Neural Information Processing Systems}, pages 8527--8537.
+
+\bibitem[{Hinton et~al.(2015)Hinton, Vinyals, and Dean}]{Hinton2015Distillation}
+Geoffrey Hinton, Oriol Vinyals, and Jeff Dean. 2015.
+\newblock Distilling the knowledge in a neural network.
+\newblock \emph{arXiv preprint arXiv:1503.02531}.
+
+\bibitem[{Jiang et~al.(2018)Jiang, Zhou, Leung, Li, and Fei-Fei}]{MentorNet2018}
+Lu~Jiang, Zhengyuan Zhou, Thomas Leung, Li-Jia Li, and Li~Fei-Fei. 2018.
+\newblock Mentornet: Learning data-driven curriculum for very deep neural networks on corrupted labels.
+\newblock In \emph{ICML}, pages 2304--2313.
+
+\bibitem[{Li et~al.(2023)Li, Li, and Hoi}]{Li2023BLIP2}
+Junnan Li, Dongxu Li, and Steven Hoi. 2023.
+\newblock {BLIP-2}: Bootstrapping language-image pre-training with frozen image encoders and large language models.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine Learning (ICML)}.
+
+\bibitem[{Li et~al.(2022)Li, Li, Xiong, and Hoi}]{Li2022BLIP}
+Junnan Li, Dongxu Li, Caiming Xiong, and Steven Hoi. 2022.
+\newblock {BLIP}: Bootstrapping language-image pre-training for unified vision-language understanding and generation.
+\newblock In \emph{Proceedings of the 39th International Conference on Machine Learning (ICML)}.
+
+\bibitem[{Li et~al.(2021)Li, Selvaraju, Gotmare, Joty, Xiong, and Hoi}]{Li2021ALBEF}
+Junnan Li, Ramprasaath~R. Selvaraju, Akhilesh Gotmare, Shafiq Joty, Caiming Xiong, and Steven Hoi. 2021.
+\newblock Align before fuse: Vision and language representation learning with momentum distillation.
+\newblock In \emph{NeurIPS}.
+
+\bibitem[{Lu et~al.(2019)Lu, Batra, Parikh, and Lee}]{ViLBERT2019}
+Jiasen Lu, Dhruv Batra, Devi Parikh, and Stefan Lee. 2019.
+\newblock {ViLBERT}: Pretraining task-agnostic visiolinguistic representations for vision-and-language tasks.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}.
+
+\bibitem[{Lu and Li(2020)}]{Lu2020GCAN}
+Yi-Ju Lu and Cheng-Te Li. 2020.
+\newblock Gcan: Graph-aware co-attention networks for explainable fake news detection on social media.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association for Computational Linguistics}.
+
+\bibitem[{Malinin and Gales(2018)}]{Malinin2018PN}
+Andrey Malinin and Mark Gales. 2018.
+\newblock Predictive uncertainty estimation via prior networks.
+\newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[{M{"u}ller et~al.(2019)M{"u}ller, Kornblith, and Hinton}]{Muller2019LabelSmoothing}
+Rafael M{"u}ller, Simon Kornblith, and Geoffrey Hinton. 2019.
+\newblock When does label smoothing help?
+\newblock In \emph{NeurIPS}.
+
+\bibitem[{Nakamura et~al.(2020)Nakamura, Levy, and Wang}]{Nakamura2020Fakeddit}
+Kai Nakamura, Sharon Levy, and William~Yang Wang. 2020.
+\newblock Fakeddit: A new multimodal benchmark dataset for fine-grained fake news detection.
+\newblock In \emph{LREC}, pages 6149--6157.
+
+\bibitem[{Nguyen et~al.(2020)Nguyen, Sugiyama, Nakov, and Kan}]{Nguyen2020FANG}
+Van-Hoang Nguyen, Kazunari Sugiyama, Preslav Nakov, and Min-Yen Kan. 2020.
+\newblock {FANG}: Leveraging social context for fake news detection using graph representation.
+\newblock In \emph{Proceedings of the 29th ACM International Conference on Information and Knowledge Management (CIKM)}.
+
+\bibitem[{Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, Krueger, and Sutskever}]{Radford2021CLIP}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamala Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever. 2021.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock In \emph{Proceedings of the 38th International Conference on Machine Learning (ICML)}.
+
+\bibitem[{Sensoy et~al.(2018)Sensoy, Kaplan, and Kandemir}]{Sensoy2018EDL}
+Murat Sensoy, Lance Kaplan, and Melih Kandemir. 2018.
+\newblock Evidential deep learning to quantify classification uncertainty.
+\newblock In \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[{Shu et~al.(2020)Shu, Mahudeswaran, Wang, Lee, and Liu}]{Shu2020FakeNewsNet}
+Kai Shu, Deepak Mahudeswaran, Suhang Wang, Dongwon Lee, and Huan Liu. 2020.
+\newblock {FakeNewsNet}: A data repository with news content, social context, and spatiotemporal information for studying fake news on social media.
+\newblock \emph{Big Data}, 8(3):171--188.
+
+\bibitem[{Wang et~al.(2018)Wang, Ma, Jin, Yuan, Xun, Jha, Su, and Gao}]{Wang2018EANN}
+Yaqing Wang, Fenglong Ma, Zhiwei Jin, Ye~Yuan, Guangxu Xun, Kishlay Jha, Lu~Su, and Jing Gao. 2018.
+\newblock Eann: Event adversarial neural networks for multi-modal fake news detection.
+\newblock In \emph{KDD}, pages 849--857.
+
+\bibitem[{Xie et~al.(2020)Xie, Hovy, Luong, and Le}]{Xie2020NoisyStudent}
+Qizhe Xie, Eduard Hovy, Minh-Thang Luong, and Quoc~V. Le. 2020.
+\newblock Self-training with noisy student improves imagenet classification.
+\newblock In \emph{CVPR}.
+
+\bibitem[{Zhang et~al.(2018)Zhang, Xiang, Hospedales, and Lu}]{Zhang2018DML}
+Ying Zhang, Tao Xiang, Timothy~M. Hospedales, and Huchuan Lu. 2018.
+\newblock Deep mutual learning.
+\newblock In \emph{CVPR}, pages 4320--4328.
+
+\bibitem[{Zhou et~al.(2020)Zhou, Wu, and Zafarani}]{Zhou2020SAFE}
+Xinyi Zhou, Jindi Wu, and Reza Zafarani. 2020.
+\newblock {SAFE}: Similarity-aware multi-modal fake news detection.
+\newblock In \emph{Advances in Knowledge Discovery and Data Mining (PAKDD)}.
+
+\end{thebibliography}

@@ -1,0 +1,31 @@
+\section{Experiments}
+\label{sec:experiments}
+\subsection{Setup}
+We compare \modelname{} against strong single- and multi-modal baselines. Hyper-parameters follow released YAMLs; encoders are BERT and ViT with a lightweight fusion head. We use AdamW (weight decay 0.01), learning rate $1.7\times10^{-5}$, batch size 32, 20 epochs, a cosine schedule with warmup, and early stopping on validation macro--F1. The distillation temperature is linearly annealed; teacher--match gate thresholds are $\tau_f/\tau_m=0.95/0.90$ with margin $\delta=0.05$; the event reliability cutoff is $\rho=0.90$.
+
+\subsection{Main Results}
+We first report results on two Chinese multimodal rumor datasets, Weibo and WeFEND; Table~\ref{tab:main} summarizes single-model performance averaged over multiple seeds, including text-only, image-only, multimodal fusion baselines, and \modelname{}.
+
+On Weibo, text-only BERT is already strong and multimodal SAFE/EANN provide only modest gains; a fusion teacher further improves performance. \modelname{} yields small but consistent improvements in Macro--F1 (roughly +0.5--1 point over SAFE/EANN) and accuracy while keeping calibration close to the fusion teacher, indicating that reliability-aware distillation does not trade off performance on this relatively high-resource setting.
+
+On WeFEND, text-only BERT lags behind multimodal baselines in both Macro--F1 and calibration. SAFE and EANN improve accuracy, but remain less well calibrated. \modelname{} achieves the best Macro--F1 and reduces ECE by roughly 0.01 compared to SAFE and the fusion teacher, while maintaining comparable accuracy. Weibo results are averaged over three seeds; WeFEND results over three seeds for baselines and five seeds for \modelname{}. Significance on Weibo is confirmed by paired bootstrap and McNemar's test; WeFEND gains are stable across seeds. Simple confidence-gated KD underperforms \modelname{} in both Macro--F1 and ECE on these datasets, suggesting that cross-modal agreement and event-aware filtering are more effective than per-instance confidence thresholds alone.
+
+On the synthetic English MiRAGeNews benchmark, the teacher nearly saturates on the in-distribution test split (Acc/Macro--F1 $\approx 0.996$) but degrades on cross-generator test subsets; averaged over the four out-of-distribution subsets and three seeds, a distilled student recovers roughly two points of accuracy and Macro--F1 (from $\approx 0.88$ to $\approx 0.90$) while maintaining similar or slightly lower ECE, as summarized in Appendix~\ref{app:results}. A full-KD Noisy-Student baseline (3 seeds) is competitive on this stress test (OOD Macro--F1 $\approx 0.901$, ECE $\approx 0.062$), while \modelname{} remains close and outperforms the fusion teacher with lower ECE. For completeness, we also report exploratory results on a strict time-split version of Fakeddit in the appendix; under this extremely challenging regime all content baselines, including BERT, EANN, SAFE, and SpotFake+, achieve relatively low accuracy and \modelname{} does not consistently outperform the teacher, so we treat this setting as a hard case rather than a primary benchmark where weak teachers limit the benefits of our scheme.
+% 由脚本生成：tables/main_results.tex
+\IfFileExists{tables/main_results.tex}{\input{tables/main_results}}{}
+
+\subsection{Ablations}
+We run ablations on Weibo/WeFEND removing gate, event reliability, and evidential loss (one seed each). Table~\ref{tab:abl} shows that removing gate or event reliability degrades both F1 and calibration, while removing evidential loss makes the model over-confident (ECE increases).
+\input{tables/ablations}
+
+\subsection{Evaluation Protocol and Statistics}
+We report Accuracy, Macro–F1, Pos–F1, and ECE. ECE is computed with 15–20 equal–width bins; we validate bin robustness by varying the bin count and by temperature scaling on the validation set \citep{Guo2017Calibration}. For each configuration, we run multiple seeds and report mean \(\pm\) standard deviation. We assess significance against the strongest baseline with paired bootstrap (10k resamples) on per–example correctness and with McNemar’s test for error set overlap (\(p<0.05\)).
+
+\subsection{Calibration and Error Analysis}
+We quantify calibration with ECE (reported in Table~\ref{tab:main}) and expected calibration error per class, and we analyze modality disagreement (KL divergence between text–only and vision–only posteriors) as a predictor of failure cases. Higher disagreement deciles correlate with higher student error on both Weibo and WeFEND (Figure~\ref{fig:disagree}), supporting agreement-aware gating. Qualitative examples illustrate typical mismatches (e.g., stock images) and the effect of event–level filtering. Gate coverage and event reliability statistics over training epochs are computed from logged summaries; we observed that distillation coverage decreases as thresholds tighten but remains well above zero, and most events accumulate high reliability, which motivates a moderate cutoff $\rho$ while confirming that gates can open when thresholds are relaxed (Appendix~\ref{fig:loosegate}).
+
+\subsection{Compute and Efficiency}
+We report runtime and memory overheads relative to a standard multimodal baseline of comparable encoder size. Training adds only lightweight gates and EMA statistics per event; the multimodal teacher branches run in inference mode and can be cached when memory permits. The per-batch overhead is a few vector operations and softmaxes, negligible compared to encoder forwards. Inference uses only the student, so deployment cost matches the baseline.
+
+\subsection{Reproducibility}
+All results are reproducible from an anonymized code package (submitted as supplementary material) that accompanies this submission, including core training code, YAML configs, and plotting scripts. We include a small utility to convert result summaries into \LaTeX{} tables and metric macros, and we list seeds, hardware, and timings in Appendix~\ref{app:impl}. A public repository URL will be provided in the camera-ready version.

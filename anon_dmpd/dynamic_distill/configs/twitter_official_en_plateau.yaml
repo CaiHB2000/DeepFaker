@@ -1,0 +1,87 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.2
+  text_model: bert-base-uncased
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.0
+  evidence_anneal_steps: 300
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 0.0
+  lambda_feat: 0.0
+  warmup_steps: 0
+  start_fraction: 0.0
+  adaptive_temperature:
+    enabled: false
+  confidence_gate:
+    enabled: false
+  uncertainty_ema:
+    enabled: false
+
+training:
+  epochs: 60
+  batch_size: 32
+  log_every: 50
+  max_steps_per_epoch: null
+  allow_data_parallel: true
+  early_stopping_patience: 6
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+scheduler:
+  type: reduce_on_plateau
+  mode: max
+  factor: 0.5
+  patience: 2
+  threshold: 0.001
+  cooldown: 0
+  min_lr: 2.0e-06
+
+teacher:
+  use_ema: false
+  ema_decay: 0.999
+
+logging:
+  output_dir: paper_results/twitter_official_clean
+  run_name: twitter_official_en_plateau
+  overwrite: false
+
+data:
+  type: twitter
+  root: datasets/twitter
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  val:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  test:
+    csv_file: twitter/test_posts.csv
+    image_dir: twitter/images_test
+    val_fraction: 0.0

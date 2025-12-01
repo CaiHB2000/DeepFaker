@@ -1,0 +1,11 @@
+\section{Analysis and Discussion}
+\label{sec:analysis}
+We focus on how sensitive performance is to gate thresholds and temperature schedules, and how calibration trades off with positive-class recall; complementary analyses are summarized in Appendix~\ref{app:results}.
+
+\paragraph{Gate Sensitivity.} We sweep confidence thresholds \(\tau_f,\tau_m\) and delta margins, reporting performance and selected pair ratios. On noisier datasets such as WeFEND, moderate thresholds yield clear improvements over no-gate baselines; overly strict gates risk under-training, as reflected in the ablations.
+
+\paragraph{Pos–F1 vs Calibration.} Increasing positive weights improves recall but may hurt ECE. Combining evidential regularization with post–hoc scaling improves calibration while preserving gains, as reflected in the ECE numbers in Table~\ref{tab:main}.
+
+\paragraph{Additional Analyses.} We also probe modality disagreement, event reliability cutoffs, and teacher failure patterns; high cross-modal disagreement and low event reliability correlate with elevated error rates, supporting our design of cross-view and event-level gates. Detailed plots and per-event breakdowns are deferred to Appendix~\ref{app:results}.
+
+\paragraph{Threats to Validity.} Internal validity risks include systemic teacher bias (agreement on the wrong label) and training hunger if gates are too strict; we mitigate with event reliability, positive-class costs, and annealed thresholds. External validity risks arise from dataset shift and event definitions; we use event-consistent splits and report per-event breakdowns. Construct validity risks concern calibration measurement; we vary bin counts and use temperature scaling to confirm trends.

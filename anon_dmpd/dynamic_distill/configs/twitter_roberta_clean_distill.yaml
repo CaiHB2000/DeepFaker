@@ -1,0 +1,96 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.2
+  text_model: bert-base-uncased
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 1.5e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 1.0
+  evidence_anneal_steps: 400
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 0.35
+  lambda_feat: 0.0
+  warmup_steps: 1200
+  start_fraction: 0.5
+  adaptive_temperature:
+    enabled: true
+    base: 2.0
+    coeff: 3.0
+  confidence_gate:
+    enabled: true
+    margin: 0.2
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+  lambda_fusion_to_text: 0.0
+  lambda_fusion_to_vision: 0.0
+  fusion_confidence: 0.8
+
+training:
+  epochs: 45
+  batch_size: 32
+  log_every: 50
+  max_steps_per_epoch: null
+  allow_data_parallel: true
+  early_stopping_patience: 6
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+scheduler:
+  type: reduce_on_plateau
+  mode: max
+  factor: 0.5
+  patience: 2
+  threshold: 0.0005
+  cooldown: 0
+  min_lr: 2.0e-06
+
+teacher:
+  use_ema: false
+  checkpoint: paper_results/twitter_official_clean/twitter_roberta_clean_teacher_seed00/model_best.pt
+  config: dynamic_distill/configs/twitter_roberta_clean_teacher.yaml
+  ema_decay: 0.999
+
+logging:
+  output_dir: paper_results/twitter_official_clean
+  run_name: twitter_roberta_clean_distill
+  overwrite: false
+
+data:
+  type: twitter
+  root: datasets/twitter
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  val:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  test:
+    csv_file: twitter/test_posts.csv
+    image_dir: twitter/images_test
+    val_fraction: 0.0

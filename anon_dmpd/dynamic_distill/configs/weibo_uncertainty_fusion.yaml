@@ -1,0 +1,100 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.0
+  evidence_anneal_steps: 1500
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 0.0
+  lambda_feat: 0.0
+  warmup_steps: 0
+  start_fraction: 0.0
+  adaptive_temperature:
+    enabled: false
+  confidence_gate:
+    enabled: false
+  uncertainty_ema:
+    enabled: false
+
+training:
+  epochs: 15
+  batch_size: 24
+  log_every: 50
+  max_steps_per_epoch: null
+  allow_data_parallel: true
+
+scheduler:
+  type: cosine
+  warmup_steps: 500
+
+teacher:
+  use_ema: false
+  ema_decay: 0.997
+
+logging:
+  output_dir: paper_results/weibo_uncertainty_fusion
+  run_name: weibo_uncertainty_fusion
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 8
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0

@@ -1,0 +1,84 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: models/bert-base-chinese/8f23c25b06e129b6c986331a13d8d025a92cf0ea
+  vision_model: models/vit-base/b4569560a39a0f1af58e3ddaf17facf20ab919b0
+
+optim:
+  lr: 0.00005
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 1.0
+  evidence_anneal_steps: 500
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 300
+  start_fraction: 0.4
+  adaptive_temperature:
+    enabled: true
+    base: 2.0
+    coeff: 2.0
+  confidence_gate:
+    enabled: true
+    margin: 0.2
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+
+training:
+  epochs: 20
+  batch_size: 8
+  log_every: 25
+  max_steps_per_epoch: null
+
+tokenizer:
+  name: models/bert-base-chinese/8f23c25b06e129b6c986331a13d8d025a92cf0ea
+  max_length: 128
+  local_files_only: true
+
+vision_processor:
+  name: models/vit-base/b4569560a39a0f1af58e3ddaf17facf20ab919b0
+  image_size: 224
+  local_files_only: true
+
+scheduler:
+  type: cosine
+  warmup_steps: 200
+
+teacher:
+  use_ema: true
+  ema_decay: 0.999
+
+logging:
+  output_dir: runs
+  run_name: null
+  overwrite: false
+
+data:
+  type: twitter
+  root: datasets/twitter
+  num_workers: 0
+  pin_memory: true
+  train:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  val:
+    csv_file: twitter/train_posts_clean.csv
+    image_dir: twitter/images_train
+    val_fraction: 0.125
+    seed: 42
+  test:
+    csv_file: twitter/test_posts.csv
+    image_dir: twitter/images_test
+    val_fraction: 0.0

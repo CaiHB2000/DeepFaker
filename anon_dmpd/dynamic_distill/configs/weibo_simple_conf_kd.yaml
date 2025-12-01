@@ -1,0 +1,109 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+optim:
+  lr: 1.7e-05
+  weight_decay: 0.01
+loss:
+  alpha: 0.6
+  beta: 0.32
+  gamma: 1.0
+  evidence_anneal_steps: 300
+  class_weights: [1.0, 1.0]
+distillation:
+  temperature: 2.0
+  delta: 0.04
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 200
+  start_fraction: 0.1
+  end_fraction: 0.7
+  confidence_gate:
+    enabled: true
+    margin: 0.0
+  # disable event/selector gates
+  uncertainty_ema:
+    enabled: false
+  positive_event_gate:
+    enabled: false
+  event_filter:
+    min_size: 1
+    teacher_min_acc: 0.0
+    teacher_min_conf: 0.0
+    warmup_steps: 1
+  fusion_teacher_must_match: false
+  soft_quota:
+    enabled: false
+  force_distill:
+    min_frac: 0.0
+    max_frac: 0.0
+  disable_uncertainty_mask: true
+training:
+  epochs: 6
+  batch_size: 24
+  log_every: 200
+  max_steps_per_epoch: 800
+  allow_data_parallel: true
+  early_stopping_patience: 2
+scheduler:
+  type: cosine
+  warmup_steps: 400
+teacher:
+  use_ema: false
+  config: dynamic_distill/configs/weibo_teacher_baseline.yaml
+  checkpoint: paper_results/weibo_teacher_baseline/weibo_teacher_baseline_seed00/model_best.pt
+logging:
+  output_dir: paper_results/weibo_simple_conf_kd
+  run_name: weibo_simple_conf_kd
+  overwrite: true
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.5
+    color_jitter: 0.15
+    random_rescale: 0.1
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 4
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+notes:
+  description: simple fusion-confidence KD baseline (no event/selector gates)

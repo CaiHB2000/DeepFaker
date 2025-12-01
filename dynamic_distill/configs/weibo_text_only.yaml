@@ -1,0 +1,89 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: null
+
+optim:
+  lr: 0.00002
+  weight_decay: 0.01
+
+loss:
+  alpha: 1.0
+  beta: 0.0
+  gamma: 0.0
+  evidence_anneal_steps: 0
+  class_weights: [1.0, 1.0]
+
+distillation:
+  disable: true
+
+training:
+  epochs: 6
+  batch_size: 32
+  log_every: 100
+  max_steps_per_epoch: 1200
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+teacher:
+  use_ema: false
+
+logging:
+  output_dir: paper_results/weibo_text_only
+  run_name: weibo_text_only
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+  word_dropout: 0.0
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 4
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+notes:
+  description: text-only BERT baseline for Weibo

@@ -1,0 +1,130 @@
+# Selector ablation: always choose text branch (no vision priority)
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 1.7e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.6
+  beta: 0.32
+  gamma: 1.0
+  evidence_anneal_steps: 300
+  class_weights: [1.0, 1.0]
+
+distillation:
+  temperature: 2.2
+  delta: 0.05
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 300
+  start_fraction: 0.1
+  end_fraction: 0.7
+  confidence_gate:
+    enabled: true
+    margin: 0.05
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+  positive_event_gate:
+    enabled: true
+    min_size: 1
+    teacher_conf: 0.7
+    student_conf: 0.5
+    only: false
+  event_filter:
+    min_size: 1
+    teacher_min_acc: 0.6
+    teacher_min_conf: 0.65
+    warmup_steps: 5
+  fusion_teacher_must_match: true
+  consensus_gate:
+    enabled: false
+  soft_quota:
+    enabled: true
+    min_frac: 0.05
+    max_frac: 0.1
+    per_event_cap_frac: 0.2
+  force_distill:
+    min_frac: 0.04
+    max_frac: 0.1
+  disable_uncertainty_mask: false
+  bootstrap_fraction: 0.05
+
+training:
+  epochs: 6
+  batch_size: 24
+  log_every: 200
+  max_steps_per_epoch: 800
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+teacher:
+  use_ema: false
+  config: dynamic_distill/configs/weibo_teacher_baseline.yaml
+  checkpoint: paper_results/weibo_teacher_baseline/weibo_teacher_baseline_seed00/model_best.pt
+
+logging:
+  output_dir: paper_results/weibo_selector_ablation
+  run_name: weibo_selector_always_text
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.5
+    color_jitter: 0.15
+    random_rescale: 0.1
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 4
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/train_nonrumor.txt
+        label: 0
+        image_dir: nonrumor_images
+      - path: tweets/train_rumor.txt
+        label: 1
+        image_dir: rumor_images
+notes:
+  description: selector ablation - always choose text branch

@@ -1,0 +1,42 @@
+# Data and results
+datasets/
+paper_results/
+runs/
+models/
+logs/
+tb_logs/
+tmp/
+trash*/
+*.pt
+*.bin
+*.safetensors
+*.ckpt
+*.npz
+*.pkl
+*.pickle
+*.npy
+*.csv
+*.tsv
+*.jsonl
+*.jsonl.gz
+*.parquet
+*.h5
+*.hdf5
+# Large aux repos
+DeepFakeBench/
+spotfake_repo/
+
+# Python/IDE
+__pycache__/
+*.py[cod]
+*.so
+.env
+.venv
+venv/
+.idea/
+*.iml
+.mypy_cache/
+pytest_cache/
+
+# HuggingFace cache if any
+.cache/

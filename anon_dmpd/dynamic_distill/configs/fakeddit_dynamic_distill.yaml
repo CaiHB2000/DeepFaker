@@ -1,0 +1,83 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-uncased
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 1.0
+  evidence_anneal_steps: 500
+
+distillation:
+  temperature: 2.5
+  delta: 0.05
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 200
+  start_fraction: 0.3
+  adaptive_temperature:
+    enabled: true
+    base: 2.5
+    coeff: 2.0
+  confidence_gate:
+    enabled: true
+    margin: 0.2
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+  lambda_fusion_to_text: 0.1
+  lambda_fusion_to_vision: 0.1
+  fusion_confidence: 0.1
+
+training:
+  epochs: 8
+  batch_size: 24
+  log_every: 50
+  max_steps_per_epoch: 1000
+  allow_data_parallel: true
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 128
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+scheduler:
+  type: cosine
+  warmup_steps: 200
+
+teacher:
+  use_ema: true
+  ema_decay: 0.998
+
+logging:
+  output_dir: paper_results/fakeddit
+  run_name: fakeddit_dynamic_distill
+  overwrite: true
+
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed/fakeddit_test.csv
+    image_dir: images

@@ -1,0 +1,12 @@
+\section{Datasets and Protocols}
+We evaluate on two Chinese multimodal rumor/fake-news corpora, and use an additional English synthetic benchmark as a stress test. The Chinese datasets provide an \textbf{event identifier} (story/rumor ID), which we use for event-level reliability.
+
+\paragraph{Weibo (KDD'18).} 4.6k posts with paired images across 231 rumor events \citep{Wang2018EANN}. We use the official event-disjoint, chronological split (train/val/test) and keep the native class ratio (real~52\%, fake~48\%).
+
+\paragraph{WeChat / WeFEND.} 11.9k public-account articles with cover images. Events correspond to public-account story IDs or linked fact-check articles. We follow the 70/10/20 chronological split from the original release to avoid leakage.
+
+\paragraph{MiRAGeNews (English, synthetic).} MiRAGeNews is an English text--image benchmark of 15k news-style posts labeled as real or AI-generated. We use the released splits: 10k/2.5k train/validation pairs and five disjoint 500-example test subsets that differ in generator (e.g., Midjourney, DALL\raisebox{.5pt}{\textbullet}E, SDXL) and outlet style (NYTimes, BBC, CNN). Since MiRAGeNews does not expose explicit events, we do not use event-level reliability there and treat it as a complementary stress test for cross-generator generalization; results are summarized in Appendix~\ref{app:results}.
+
+\paragraph{Pre-processing and statistics.} Chinese text is tokenized with Chinese BERT; images are resized to 224px. We keep native class ratios. Counts of posts/events/images per split, class imbalance, image coverage, and the percentage of small events (\(<5\) posts) are summarized in Appendix~\ref{app:data} and can be regenerated from our released scripts.
+
+\paragraph{Evaluation protocol.} Primary metrics are \metricMF{} and \metricPF{}, with \metricAcc{} and \metricECE{} as secondary; ECE uses 15 bins with temperature scaling on validation. Unless stated otherwise, results are averaged over three seeds (mean ± standard error); significance is assessed with 10k paired bootstrap samples and McNemar's test. Event-consistent batching (one event per mini-batch) is used for all methods to stabilize event-level statistics and ensure comparable topic distributions across models. Implementation details, checkpointing, and seeds are in the anonymized supplementary repository.

@@ -1,0 +1,103 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 0.00005
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 1.0
+  evidence_anneal_steps: 1000
+
+distillation:
+  temperature: 2.0
+  delta: 0.05
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 10
+  start_fraction: 0.0
+  adaptive_temperature:
+    enabled: false
+    base: 2.0
+    coeff: 0.0
+  confidence_gate:
+    enabled: false
+    margin: 0.2
+  uncertainty_ema:
+    enabled: false
+    momentum: 0.9
+
+training:
+  epochs: 1
+  batch_size: 2
+  log_every: 10
+  max_steps_per_epoch: 50
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 128
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+scheduler:
+  type: cosine
+  warmup_steps: 200
+
+teacher:
+  use_ema: true
+  ema_decay: 0.999
+
+logging:
+  output_dir: runs
+  run_name: null
+  overwrite: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 4
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0

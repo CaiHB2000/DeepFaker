@@ -1,0 +1,3 @@
+dynamic_distill/configs/fakeddit6_student_event_reliable.yaml 0 logs/fakeddit6_time/student_event_reliable_seed00.log
+dynamic_distill/configs/fakeddit6_student_event_reliable.yaml 1 logs/fakeddit6_time/student_event_reliable_seed01.log
+dynamic_distill/configs/fakeddit6_student_event_reliable.yaml 2 logs/fakeddit6_time/student_event_reliable_seed02.log

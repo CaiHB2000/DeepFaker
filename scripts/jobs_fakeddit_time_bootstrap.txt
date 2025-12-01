@@ -1,0 +1,3 @@
+dynamic_distill/configs/fakeddit_student_time_bootstrap.yaml 0 logs/fakeddit_time/student_bootstrap_seed00.log
+dynamic_distill/configs/fakeddit_student_time_bootstrap.yaml 1 logs/fakeddit_time/student_bootstrap_seed01.log
+dynamic_distill/configs/fakeddit_student_time_bootstrap.yaml 2 logs/fakeddit_time/student_bootstrap_seed02.log

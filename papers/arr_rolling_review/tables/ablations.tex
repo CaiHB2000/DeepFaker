@@ -1,0 +1,24 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}l l c c c@{}}
+\toprule
+Dataset & Variant & Acc~($\uparrow$) & Macro-F1~($\uparrow$) & ECE~($\downarrow$) \\
+\midrule
+\multirow{4}{*}{Weibo}
+  & \textbf{DMPD}          & \textbf{0.9495} & \textbf{0.9495} & \textbf{0.0323} \\
+  & \hspace{0.4em}-- gate        & 0.9447 & 0.9447 & 0.0367 \\
+  & \hspace{0.4em}-- event rel.  & 0.9474 & 0.9474 & 0.0408 \\
+  & \hspace{0.4em}-- evidential  & 0.9440 & 0.9440 & 0.0474 \\
+\midrule
+\multirow{4}{*}{WeFEND}
+  & \textbf{DMPD}          & \textbf{0.9436} & \textbf{0.9186} & \textbf{0.0378} \\
+  & \hspace{0.4em}-- gate        & 0.9293 & 0.8938 & 0.0504 \\
+  & \hspace{0.4em}-- event rel.  & 0.9381 & 0.9088 & 0.0532 \\
+  & \hspace{0.4em}-- evidential  & 0.9304 & 0.8991 & 0.0485 \\
+\bottomrule
+\end{tabular}
+\caption[Ablations on Weibo and WeFEND]{Ablations on Weibo and WeFEND (one representative seed). Main tables report mean~$\pm$~sd over multiple seeds; here we show single-seed deltas to highlight each component. Removing gate or event reliability harms both F1 and calibration; removing evidential loss makes the model over-confident (higher ECE).}
+\label{tab:abl}
+\end{table}

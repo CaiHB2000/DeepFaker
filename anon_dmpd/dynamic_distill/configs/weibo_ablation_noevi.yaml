@@ -1,0 +1,102 @@
+# Weibo no-evidential ablation: remove evidential head (set gamma=0)
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+loss:
+  alpha: 0.5
+  beta: 0.3
+  gamma: 0.0
+  evidence_anneal_steps: 0
+
+distillation:
+  temperature: 2.5
+  delta: 0.05
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 300
+  start_fraction: 0.3
+  adaptive_temperature:
+    enabled: true
+    base: 2.5
+    coeff: 2.0
+  confidence_gate:
+    enabled: true
+    margin: 0.2
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+
+training:
+  epochs: 20
+  batch_size: 24
+  log_every: 50
+  max_steps_per_epoch: null
+  allow_data_parallel: true
+scheduler:
+  type: cosine
+  warmup_steps: 800
+
+teacher:
+  use_ema: true
+  ema_decay: 0.998
+
+logging:
+  output_dir: paper_results/weibo_ablation
+  run_name: weibo_noevi
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 8
+  pin_memory: true
+  train:
+    id_file: train_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  val:
+    id_file: validate_id.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+  test:
+    id_file: test_id.pickle
+    text_sources:
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0

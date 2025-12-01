@@ -1,0 +1,118 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: roberta-base
+  vision_model: google/vit-base-patch16-224-in21k
+
+optim:
+  lr: 1.2e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.6
+  beta: 0.32
+  gamma: 1.0
+  evidence_anneal_steps: 400
+  class_weights: [1.0, 1.0]
+
+distillation:
+  temperature: 2.5          # higher T to smooth teacher
+  delta: 0.04
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 200
+  start_fraction: 0.08
+  end_fraction: 0.7
+  adaptive_temperature:
+    enabled: true
+    base: 2.5
+    coeff: 0.25
+  confidence_gate:
+    enabled: true
+    margin: 0.05
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+  lambda_fusion_to_text: 0.12
+  lambda_fusion_to_vision: 0.12
+  fusion_confidence: 0.1
+  require_student_mistake: true
+  agreement_confidence_gap: 0.02
+  positive_event_gate:
+    enabled: false
+  event_filter:
+    min_size: 1
+    teacher_min_acc: 0.0
+    teacher_min_conf: 0.0
+    warmup_steps: 1
+  fusion_teacher_must_match: false
+  delta_schedule:
+    end_fraction: 0.85
+  soft_quota:
+    enabled: true
+    min_frac: 0.08
+    max_frac: 0.14
+    per_event_cap_frac: 0.25
+    score_temp_coeff: 0.2
+    score_kl_scale: 0.6
+  force_distill:
+    min_frac: 0.06
+    max_frac: 0.12
+  disable_uncertainty_mask: true
+  bootstrap_fraction: 0.06
+
+training:
+  epochs: 6
+  batch_size: 24
+  log_every: 200
+  max_steps_per_epoch: 1200
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+teacher:
+  use_ema: false
+  config: dynamic_distill/configs/miragenews_teacher.yaml
+  checkpoint: paper_results/miragenews/miragenews_teacher_seed00/model_best.pt
+
+logging:
+  output_dir: paper_results/miragenews_student_distill_t25
+  run_name: miragenews_student_distill_t25
+  overwrite: true
+
+tokenizer:
+  name: roberta-base
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.6          # slightly stronger aug
+    color_jitter: 0.18
+    random_rescale: 0.12
+
+data:
+  type: generic
+  root: datasets/miragenews/processed
+  num_workers: 4
+  pin_memory: true
+  train:
+    csv_file: miragenews_train.csv
+    image_dir: .
+  val:
+    csv_file: miragenews_validation.csv
+    image_dir: .
+  test:
+    csv_file: miragenews_test1_nyt_mj.csv
+    image_dir: .
+notes:
+  description: higher-T distill variant for MiRAGeNews stress-test

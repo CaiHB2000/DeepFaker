@@ -1,0 +1,115 @@
+model:
+  num_classes: 6
+  encoder_dim: 1024
+  classifier_hidden: 768
+  dropout: 0.1
+  text_model: roberta-large
+  vision_model: google/vit-large-patch16-224-in21k
+optim:
+  lr: 1.0e-05
+  weight_decay: 0.01
+loss:
+  alpha: 0.7
+  beta: 0.3
+  gamma: 1.0
+distillation:
+  temperature: 2.0
+  delta: 0.03
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  warmup_steps: 400
+  start_fraction: 0.0
+  end_fraction: 0.9
+  bootstrap_fraction: 0.0
+  adaptive_temperature:
+    enabled: false
+  confidence_gate:
+    enabled: false
+  uncertainty_ema:
+    enabled: true
+    momentum: 0.9
+  lambda_fusion_to_text: 0.12
+  lambda_fusion_to_vision: 0.12
+  require_student_mistake: false
+  consensus_gate:
+    enabled: true
+    min_conf: 0.55
+    require_agreement: true
+  positive_event_gate:
+    enabled: true
+    min_size: 5
+    teacher_conf: 0.6
+    student_conf: 0.5
+    only: false
+  event_filter:
+    min_size: 3
+    teacher_min_acc: 0.5
+    teacher_min_conf: 0.55
+    warmup_steps: 200
+  soft_quota:
+    enabled: true
+    min_frac: 0.08
+    max_frac: 0.12
+    per_event_cap_frac: 0.25
+    min_reliability: 0.0
+  force_distill:
+    min_frac: 0.05
+    max_frac: 0.1
+  fallback:
+    enabled: true
+    min_pairs_fraction: 0.05
+    teacher_conf: 0.6
+    student_conf: 0.75
+    positive_only: false
+    require_student_mistake: false
+    temperature: 2.0
+    lambda_scale: 0.8
+    start_fraction: 0.1
+    confidence_scale: 0.5
+    confidence_power: 1.0
+training:
+  epochs: 10
+  batch_size: 16
+  log_every: 2000
+  max_steps_per_epoch: 3800
+  allow_data_parallel: true
+  early_stopping_patience: 3
+scheduler:
+  type: cosine
+  warmup_steps: 800
+teacher:
+  use_ema: false
+  ema_decay: 0.998
+  config: dynamic_distill/configs/fakeddit6_teacher_roberta_time.yaml
+  checkpoint: paper_results/fakeddit6_time/fakeddit6_teacher_roberta_time_seed01/model_best.pt
+logging:
+  output_dir: paper_results/fakeddit6_time_student
+  run_name: fakeddit6_student_bootstrap0
+  overwrite: true
+tokenizer:
+  name: roberta-large
+  max_length: 160
+  local_files_only: false
+vision_processor:
+  name: google/vit-large-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.5
+    color_jitter: 0.1
+    random_rescale: 0.1
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed_strict/time6/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed_strict/time6/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed_strict/time6/fakeddit_test.csv
+    image_dir: images

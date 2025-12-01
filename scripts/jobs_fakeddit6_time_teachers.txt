@@ -1,0 +1,3 @@
+dynamic_distill/configs/fakeddit6_teacher_roberta_time.yaml 0 logs/fakeddit6_time/teacher_seed00.log
+dynamic_distill/configs/fakeddit6_teacher_roberta_time.yaml 1 logs/fakeddit6_time/teacher_seed01.log
+dynamic_distill/configs/fakeddit6_teacher_roberta_time.yaml 2 logs/fakeddit6_time/teacher_seed02.log

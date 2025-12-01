@@ -1,0 +1,68 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  hidden_dim: 512
+  dropout: 0.1
+  text_model: bert-base-chinese
+  vision_model: google/vit-base-patch16-224-in21k
+  grl_lambda: 1.0
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  lambda_domain: 0.2
+
+training:
+  epochs: 12
+  batch_size: 32
+  log_every: 100
+  allow_data_parallel: true
+  early_stopping_patience: 3
+
+scheduler:
+  type: cosine
+  warmup_steps: 400
+
+logging:
+  output_dir: paper_results/weibo_eann_strict
+  run_name: weibo_eann_strict
+  overwrite: true
+
+tokenizer:
+  name: bert-base-chinese
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: google/vit-base-patch16-224-in21k
+  image_size: 224
+  local_files_only: false
+
+data:
+  type: weibo
+  root: datasets/weibo
+  num_workers: 8
+  pin_memory: true
+  train:
+    id_file: train_id_strict.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+  val:
+    id_file: validate_id_strict.pickle
+    text_sources:
+      - path: tweets/train_rumor.txt
+        label: 1
+      - path: tweets/train_nonrumor.txt
+        label: 0
+  test:
+    id_file: test_id_strict.pickle
+    text_sources:
+      - path: tweets/test_rumor.txt
+        label: 1
+      - path: tweets/test_nonrumor.txt
+        label: 0

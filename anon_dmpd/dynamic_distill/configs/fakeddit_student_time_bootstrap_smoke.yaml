@@ -1,0 +1,77 @@
+# Short smoke to verify distill pairs > 0
+model:
+  num_classes: 2
+  encoder_dim: 1024
+  classifier_hidden: 768
+  dropout: 0.1
+  text_model: roberta-large
+  vision_model: google/vit-large-patch16-224-in21k
+
+optim:
+  lr: 1.2e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.6
+  beta: 0.32
+  gamma: 1.0
+
+distillation:
+  temperature: 2.0
+  delta: 0.02
+  lambda_kl: 1.0
+  lambda_feat: 0.1
+  start_fraction: 0.0
+  end_fraction: 1.0
+  bootstrap_fraction: 1.1
+  disable_uncertainty_mask: false
+  confidence_gate:
+    enabled: false
+  positive_event_gate:
+    enabled: false
+  soft_quota:
+    enabled: true
+    min_frac: 0.1
+    max_frac: 0.1
+  force_distill:
+    min_frac: 0.1
+    max_frac: 0.1
+
+training:
+  epochs: 1
+  batch_size: 12
+  log_every: 20
+  max_steps_per_epoch: 120
+  allow_data_parallel: false
+
+teacher:
+  config: dynamic_distill/configs/fakeddit_teacher_roberta_time.yaml
+  checkpoint: paper_results/fakeddit_time/fakeddit_teacher_roberta_time_seed01/model_best.pt
+
+logging:
+  output_dir: paper_results/fakeddit_time_smoke
+  run_name: fakeddit_time_bootstrap_smoke
+  overwrite: true
+
+tokenizer:
+  name: roberta-large
+  max_length: 128
+
+vision_processor:
+  name: google/vit-large-patch16-224-in21k
+  image_size: 224
+
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 4
+  pin_memory: true
+  train:
+    csv_file: processed_strict/time/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed_strict/time/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed_strict/time/fakeddit_test.csv
+    image_dir: images

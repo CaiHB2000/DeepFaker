@@ -1,0 +1,40 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}%
+\begin{tabular}{l
+  c@{\,±\,}c
+  c@{\,±\,}c
+  c@{\,±\,}c}
+\toprule
+Method & \multicolumn{2}{c}{Acc~($\uparrow$)} &
+  \multicolumn{2}{c}{Macro-F1~($\uparrow$)} &
+  \multicolumn{2}{c}{ECE~($\downarrow$)} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\midrule
+\multicolumn{7}{c}{\textbf{Weibo (zh, text+image)}} \\ \midrule
+Text-only BERT (3 seeds) & 0.939 & 0.003 & 0.939 & 0.003 & 0.044 & 0.007 \\
+Image-only ViT (1 seed) & 0.743 & -- & 0.740 & -- & 0.151 & -- \\
+SAFE (PAKDD'20, 3 seeds) & 0.938 & 0.002 & 0.938 & 0.002 & 0.044 & 0.004 \\
+EANN (KDD'18, 3 seeds) & 0.937 & 0.001 & 0.936 & 0.001 & 0.050 & 0.004 \\
+Noisy-Student KD (3 seeds) & 0.941 & 0.001 & 0.941 & 0.001 & 0.056 & 0.003 \\
+Teacher fusion baseline & 0.943 & -- & 0.943 & -- & 0.036 & -- \\
+\textbf{DMPD (ours, 3 seeds)} & \textbf{0.948} & \textbf{0.001} & \textbf{0.948} & \textbf{0.001} & 0.040 & 0.005 \\
+\midrule
+\multicolumn{7}{c}{\textbf{WeFEND (zh, public accounts)}} \\ \midrule
+Text-only BERT (3 seeds) & 0.927 & 0.006 & 0.893 & 0.008 & 0.063 & 0.012 \\
+SAFE (text+image, 3 seeds) & 0.937 & 0.006 & 0.905 & 0.009 & 0.040 & 0.004 \\
+EANN (text+image, 3 seeds) & 0.932 & 0.001 & 0.899 & 0.001 & 0.052 & 0.006 \\
+Noisy-Student KD (3 seeds) & 0.939 & 0.003 & 0.908 & 0.004 & 0.057 & 0.002 \\
+Teacher fusion baseline & 0.935 & -- & 0.902 & -- & 0.043 & -- \\
+\textbf{DMPD (ours, 5 seeds)} & \textbf{0.939} & \textbf{0.003} & \textbf{0.913} & \textbf{0.004} & \textbf{0.030} & \textbf{0.004} \\
+\midrule
+\multicolumn{7}{c}{\textbf{MiRAGeNews (en, OOD test2--5)}} \\ \midrule
+Teacher fusion baseline (3 seeds) & 0.883 & 0.018 & 0.882 & 0.019 & 0.057 & 0.008 \\
+Noisy-Student KD (3 seeds) & \textbf{0.901} & 0.008 & \textbf{0.901} & 0.008 & 0.062 & 0.008 \\
+\textbf{DMPD (ours, $T{=}2.0$, 3 seeds)} & 0.902 & 0.013 & 0.902 & 0.013 & \textbf{0.051} & \textbf{0.001} \\
+\bottomrule
+\end{tabular}
+\caption{Main results on two Chinese multimodal datasets and one English synthetic benchmark. On Weibo, DMPD improves over fusion and KD baselines (SAFE, EANN, Noisy-Student, fusion teacher) in macro-F1 while maintaining comparable calibration. On WeFEND, DMPD matches the strongest baselines in accuracy while improving macro-F1 and substantially lowering ECE (up to \(-0.027\)) relative to Noisy-Student KD. On MiRAGeNews (averaged over out-of-distribution test2--5), Noisy-Student KD is strong on this stress test; DMPD remains competitive and outperforms the fusion teacher. All results are reported as mean $\pm$ standard deviation over three random seeds unless otherwise noted; methods evaluated with a single seed are reported without standard deviation (denoted by ``--'').}
+\label{tab:main}
+\end{table*}

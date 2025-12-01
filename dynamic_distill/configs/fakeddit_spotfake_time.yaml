@@ -1,0 +1,74 @@
+model:
+  num_classes: 2
+  encoder_dim: 768
+  classifier_hidden: 512
+  dropout: 0.1
+  text_model: bert-base-uncased
+  vision_model: microsoft/resnet-101
+  crossmodal_attention: true
+  cross_heads: 4
+
+optim:
+  lr: 2.0e-05
+  weight_decay: 0.01
+
+loss:
+  alpha: 0.6
+  beta: 0.3
+  gamma: 0.0
+  evidence_anneal_steps: 800
+  class_weights: [0.8, 1.3]
+
+distillation:
+  lambda_kl: 0.0
+  lambda_feat: 0.0
+
+training:
+  epochs: 6
+  batch_size: 24
+  log_every: 200
+  max_steps_per_epoch: 3000
+  allow_data_parallel: true
+  early_stopping_patience: 2
+
+tokenizer:
+  name: bert-base-uncased
+  max_length: 160
+  local_files_only: false
+
+vision_processor:
+  name: resnet101
+  image_size: 224
+  local_files_only: false
+  augment:
+    enabled: true
+    flip_prob: 0.5
+    color_jitter: 0.15
+    random_rescale: 0.1
+
+scheduler:
+  type: cosine
+  warmup_steps: 800
+
+teacher:
+  use_ema: false
+
+logging:
+  output_dir: paper_results/fakeddit_time_spotfake
+  run_name: fakeddit_spotfake_time
+  overwrite: true
+
+data:
+  type: fakeddit
+  root: datasets/fakeddit
+  num_workers: 8
+  pin_memory: true
+  train:
+    csv_file: processed_strict/time/fakeddit_train.csv
+    image_dir: images
+  val:
+    csv_file: processed_strict/time/fakeddit_val.csv
+    image_dir: images
+  test:
+    csv_file: processed_strict/time/fakeddit_test.csv
+    image_dir: images

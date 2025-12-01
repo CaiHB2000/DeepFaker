@@ -1,0 +1,1 @@
+dynamic_distill/configs/wefend_dynamic_pseudo_seed00.yaml 2 logs/wefend_iter/pseudo_seed00.log
